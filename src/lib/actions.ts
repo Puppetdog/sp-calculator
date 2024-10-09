@@ -8,15 +8,20 @@ import { eq } from "drizzle-orm";
 // Infer types from your Drizzle ORM schemas
 type Program = typeof programs.$inferInsert;
 type BenefitCondition = typeof benefitConditions.$inferInsert;
-
+export interface BenefitConditionInput {
+        benefitType: 'cash' | 'in-kind';
+        conditionField: string;
+        conditionOperator: '>' | '<' | '>=' | '<=' | '==' | '!=';
+        conditionValue: string;
+        benefitAmount: number;
+}
 // Function to add a new program along with its benefit conditions
 export async function addProgram(
         programData: Program,
-        benefitConditionsData: BenefitCondition[]
+        benefitConditionsData: BenefitConditionInput[]
 ): Promise<void> {
-        // Start a transaction to ensure atomicity
         await db.transaction(async (tx) => {
-                // Insert the program data
+                // Insert program data
                 const [insertedProgram] = await tx
                         .insert(programs)
                         .values(programData)
@@ -24,11 +29,11 @@ export async function addProgram(
 
                 const programId = insertedProgram.id;
 
-                // Insert benefit conditions if any
+                // Process benefit conditions
                 if (benefitConditionsData && benefitConditionsData.length > 0) {
-                        // Add the programId to each benefit condition
                         const conditionsWithProgramId = benefitConditionsData.map((condition) => ({
                                 ...condition,
+                                conditionValue: String(condition.conditionValue), // Ensure conditionValue is a string
                                 programId,
                         }));
 

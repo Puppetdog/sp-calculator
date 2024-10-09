@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SocialProtectionNavigation } from "@/components/SocialProtectionNavigation";
+import { Suspense } from "react";
 
 const geistSans = localFont({
         src: "./fonts/GeistVF.woff",
@@ -35,7 +36,9 @@ export default function RootLayout({
                                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
                         >
                                 <SocialProtectionNavigation programs={programs} />
-                                {children}
+                                <Suspense>
+                                        {children}
+                                </Suspense>
                         </body>
                 </html>
         );

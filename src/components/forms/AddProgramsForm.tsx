@@ -1,4 +1,3 @@
-
 'use client'
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
-import { addProgram } from '@/lib/actions'
+import { addProgram, BenefitConditionInput } from '@/lib/actions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 const benefitConditionSchema = z.object({
         benefitType: z.enum(['cash', 'in-kind']),
@@ -99,15 +98,33 @@ export function AddProgramForm() {
                 control: form.control,
                 name: 'benefitConditions',
         });
-
         async function onSubmit(values: z.infer<typeof formSchema>) {
                 try {
-                        await addProgram(values)
-                        alert('Program added successfully!')
-                        form.reset()
+                        const { benefitConditions = [], ...programData } = values;
+
+                        const programDataWithIntegers = {
+                                ...programData,
+                                citizenshipRequired: programData.citizenshipRequired ? 1 : 0,
+                                cashTransfer: programData.cashTransfer ? 1 : 0,
+                                inKindTransfer: programData.inKindTransfer ? 1 : 0,
+                        };
+
+                        // Convert conditionValue to string and ensure it matches BenefitConditionInput type
+                        const benefitConditionsData: BenefitConditionInput[] = benefitConditions.map(
+                                (condition) => ({
+                                        ...condition,
+                                        conditionValue: String(condition.conditionValue),
+                                })
+                        );
+
+                        // Call addProgram with the correct parameters
+                        await addProgram(programDataWithIntegers, benefitConditionsData);
+
+                        alert('Program added successfully!');
+                        form.reset();
                 } catch (error) {
-                        console.error('Error adding program:', error)
-                        alert('Failed to add program. Please try again.')
+                        console.error('Error adding program:', error);
+                        alert('Failed to add program. Please try again.');
                 }
         }
 

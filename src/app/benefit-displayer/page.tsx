@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DataTable from '@/components/data-table';
@@ -25,8 +25,7 @@ const defaultCurrency = currencyInfo["1"];
 function generateSeededMockData(seed: string): SocialProtectionProgram[] {
         const rng = seedrandom(seed);
         return Array.from({ length: 5000 }, () =>
-                generateMock(socialProtectionProgramSchema, { random: () => rng() })
-        );
+                generateMock(socialProtectionProgramSchema));
 }
 
 // Define the type for the table data

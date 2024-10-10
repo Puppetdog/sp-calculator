@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+export const runtime = 'edge';
 export default function Home() {
         return (
                 <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gradient-to-b from-background to-secondary/20">

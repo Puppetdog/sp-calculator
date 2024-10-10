@@ -1,5 +1,6 @@
 import { AddProgramForm } from "@/components/forms/AddProgramsForm"
 
+export const runtime = 'edge';
 export default function AddProgramPage() {
         return (
                 <div className="container mx-auto p-4">

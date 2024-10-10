@@ -9,6 +9,7 @@ import { generateMock } from "@anatine/zod-mock";
 import seedrandom from 'seedrandom';
 import { ColumnDef } from '@tanstack/react-table';
 
+export const runtime = 'edge';
 // Currency information for each country
 const currencyInfo = {
         "1": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Dominica

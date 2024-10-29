@@ -17,9 +17,7 @@
     "deploy": "pnpm run pages:build && wrangler pages deploy"
   },
   "dependencies": {
-    "@anatine/zod-mock": "^3.13.4",
     "@cloudflare/workers-types": "^4.20241022.0",
-    "@faker-js/faker": "^9.0.3",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -50,6 +48,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
+    "@anatine/zod-mock": "^3.13.4",
     "@cloudflare/next-on-pages": "^1.13.5",
     "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^22.7.9",

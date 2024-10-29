@@ -8,15 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@anatine/zod-mock':
-        specifier: ^3.13.4
-        version: 3.13.4(@faker-js/faker@9.1.0)(zod@3.23.8)
       '@cloudflare/workers-types':
         specifier: ^4.20241022.0
         version: 4.20241022.0
-      '@faker-js/faker':
-        specifier: ^9.0.3
-        version: 9.1.0
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.53.1(react@18.3.1))
@@ -102,9 +96,15 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@anatine/zod-mock':
+        specifier: ^3.13.4
+        version: 3.13.4(@faker-js/faker@9.1.0)(zod@3.23.8)
       '@cloudflare/next-on-pages':
         specifier: ^1.13.5
         version: 1.13.5(@cloudflare/workers-types@4.20241022.0)(vercel@37.12.1)(wrangler@3.83.0(@cloudflare/workers-types@4.20241022.0))
+      '@faker-js/faker':
+        specifier: ^9.0.3
+        version: 9.1.0
       '@types/better-sqlite3':
         specifier: ^7.6.11
         version: 7.6.11

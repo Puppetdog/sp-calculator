@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DataTable from '@/components/data-table';
-import { socialProtectionProgramSchema, SocialProtectionProgram, createColumns } from "./columns";
-import { generateMock } from "@anatine/zod-mock";
-import seedrandom from 'seedrandom';
+import { SocialProtectionProgram, createColumns } from "./columns";
+//import { generateMock } from "@anatine/zod-mock";
+//import seedrandom from 'seedrandom';
 import { ColumnDef } from '@tanstack/react-table';
 
 // Currency information for each country
@@ -22,11 +22,11 @@ const currencyInfo = {
 const defaultCurrency = currencyInfo["1"];
 
 // Generate seeded mock data
-function generateSeededMockData(seed: string): SocialProtectionProgram[] {
-        const rng = seedrandom(seed);
-        return Array.from({ length: 5000 }, () =>
-                generateMock(socialProtectionProgramSchema));
-}
+//function generateSeededMockData(seed: string): SocialProtectionProgram[] {
+//        const rng = seedrandom(seed);
+//        return Array.from({ length: 50 }, () =>
+//                generateMock(socialProtectionProgramSchema));
+//}
 
 // Define the type for the table data
 type TableData = {
@@ -38,7 +38,7 @@ type TableData = {
 };
 
 // Use a constant seed for consistent data generation
-const MOCK_DATA_SEED = "constant-seed-for-mock-data";
+//const MOCK_DATA_SEED = "constant-seed-for-mock-data";
 
 export default function BenefitsDisplayer() {
         const searchParams = useSearchParams();
@@ -48,7 +48,7 @@ export default function BenefitsDisplayer() {
         const [columns, setColumns] = useState<ColumnDef<TableData>[]>([]);
 
         useEffect(() => {
-                const mockPrograms = generateSeededMockData(MOCK_DATA_SEED);
+                const mockPrograms: any[] = [];
 
                 const age = searchParams.get('age');
                 const gender = searchParams.get('gender');

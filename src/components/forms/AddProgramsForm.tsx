@@ -23,12 +23,12 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
-import { addProgram, BenefitConditionInput } from '@/lib/actions'
+import { addProgram } from "@/app/add-programs/actions"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 const benefitConditionSchema = z.object({
         benefitType: z.enum(['cash', 'in-kind']),
         conditionField: z.string(),
-        conditionOperator: z.enum(['>', '<', '>=', '<=', '==', '!=']),
+        conditionOperator: z.enum(['>', '<', '>=', '<=', '===', '!==']),
         conditionValue: z.union([z.string(), z.number()]),
         benefitAmount: z.number().min(0),
 });
@@ -100,28 +100,14 @@ export function AddProgramForm() {
         });
         async function onSubmit(values: z.infer<typeof formSchema>) {
                 try {
-                        const { benefitConditions = [], ...programData } = values;
+                        const result = await addProgram(values);
 
-                        const programDataWithIntegers = {
-                                ...programData,
-                                citizenshipRequired: programData.citizenshipRequired ? 1 : 0,
-                                cashTransfer: programData.cashTransfer ? 1 : 0,
-                                inKindTransfer: programData.inKindTransfer ? 1 : 0,
-                        };
-
-                        // Convert conditionValue to string and ensure it matches BenefitConditionInput type
-                        const benefitConditionsData: BenefitConditionInput[] = benefitConditions.map(
-                                (condition) => ({
-                                        ...condition,
-                                        conditionValue: String(condition.conditionValue),
-                                })
-                        );
-
-                        // Call addProgram with the correct parameters
-                        await addProgram(programDataWithIntegers, benefitConditionsData);
-
-                        alert('Program added successfully!');
-                        form.reset();
+                        if (result.success) {
+                                alert('Program added successfully!');
+                                form.reset();
+                        } else {
+                                alert(result.error || 'Failed to add program');
+                        }
                 } catch (error) {
                         console.error('Error adding program:', error);
                         alert('Failed to add program. Please try again.');
@@ -598,7 +584,7 @@ export function AddProgramForm() {
                                                                                                                         <SelectItem value="<">Less Than</SelectItem>
                                                                                                                         <SelectItem value=">=">Greater Than or Equal (≥)</SelectItem>
                                                                                                                         <SelectItem value="<=">Less Than or Equal (≤)</SelectItem>
-                                                                                                                        <SelectItem value="==">Equal (==)</SelectItem>
+                                                                                                                        <SelectItem value="===">Equal (===)</SelectItem>
                                                                                                                         <SelectItem value="!=">Not Equal (!=)</SelectItem>
                                                                                                                 </SelectContent>
                                                                                                         </Select>
@@ -665,7 +651,7 @@ export function AddProgramForm() {
                                                                                 append({
                                                                                         benefitType: 'cash',
                                                                                         conditionField: '',
-                                                                                        conditionOperator: '==',
+                                                                                        conditionOperator: '===',
                                                                                         conditionValue: '',
                                                                                         benefitAmount: 0,
                                                                                 })

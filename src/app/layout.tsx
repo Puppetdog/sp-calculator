@@ -4,6 +4,7 @@ import "./globals.css";
 import { SocialProtectionNavigation } from "@/components/SocialProtectionNavigation";
 import { Suspense } from "react";
 
+export const runtime = 'edge';
 const geistSans = localFont({
         src: "./fonts/GeistVF.woff",
         variable: "--font-geist-sans",

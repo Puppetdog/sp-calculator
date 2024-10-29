@@ -1,91 +1,61 @@
-
-// actions.ts
 'use server'
-import { db } from './db'; // Ensure you have a db.ts exporting your Drizzle database instance
-import { programs, benefitConditions } from './schema'; // Import your tables
 
+import { programs, benefitConditions } from './schema';
 import { eq } from "drizzle-orm";
-// Infer types from your Drizzle ORM schemas
+import { z } from "zod";
+import { db } from './db';
+
+// Zod schemas for validation
+const ProgramSchema = z.object({
+        id: z.number(),
+        programTitle: z.string(),
+        responsibleOrganization: z.string(),
+        programDescription: z.string(),
+        ageMinimum: z.number(),
+        ageMaximum: z.number(),
+        gender: z.string(),
+        numberOfDependents: z.number(),
+        typeOfDependents: z.string(),
+        employmentStatus: z.string(),
+        disabilityStatus: z.string(),
+        chronicIllnessStatus: z.string(),
+        householdSize: z.number(),
+        programCountry: z.string(),
+        citizenshipRequired: z.number(),
+        cashTransfer: z.number(),
+        cashTransferMonthlyAmount: z.number().nullable(),
+        inKindTransfer: z.number(),
+        inKindDollarValueAmt: z.number().nullable(),
+});
+
+const BenefitConditionInputSchema = z.object({
+        benefitType: z.enum(['cash', 'in-kind']),
+        conditionField: z.string(),
+        conditionOperator: z.enum(['>', '<', '>=', '<=', '===', '!==']),
+        conditionValue: z.string(),
+        benefitAmount: z.number()
+});
+
+// Types
 type Program = typeof programs.$inferInsert;
-type BenefitCondition = typeof benefitConditions.$inferInsert;
+type Programs = typeof programs.$inferSelect;
+
 export interface BenefitConditionInput {
         benefitType: 'cash' | 'in-kind';
         conditionField: string;
-        conditionOperator: '>' | '<' | '>=' | '<=' | '==' | '!=';
+        conditionOperator: '>' | '<' | '>=' | '<=' | '===' | '!==';
         conditionValue: string;
         benefitAmount: number;
 }
-// Function to add a new program along with its benefit conditions
-export async function addProgram(
-        programData: Program,
-        benefitConditionsData: BenefitConditionInput[]
-): Promise<void> {
-        await db.transaction(async (tx) => {
-                // Insert program data
-                const [insertedProgram] = await tx
-                        .insert(programs)
-                        .values(programData)
-                        .returning({ id: programs.id });
 
-                const programId = insertedProgram.id;
+// Helper function to get database instance
 
-                // Process benefit conditions
-                if (benefitConditionsData && benefitConditionsData.length > 0) {
-                        const conditionsWithProgramId = benefitConditionsData.map((condition) => ({
-                                ...condition,
-                                conditionValue: String(condition.conditionValue), // Ensure conditionValue is a string
-                                programId,
-                        }));
-
-                        await tx.insert(benefitConditions).values(conditionsWithProgramId);
-                }
-        });
-}
-
-// Function to calculate the benefit amount for a participant based on benefit conditions
-export async function calculateBenefitAmount(
-        programId: number,
-        participantData: Record<string, any>
-): Promise<number> {
-        // Fetch benefit conditions associated with the program
-        const conditions = await db
-                .select()
-                .from(benefitConditions)
-                .where(eq(benefitConditions.programId, programId));
-
-        let benefitAmount = 0;
-
-        // Iterate over each condition to evaluate
-        for (const condition of conditions) {
-                const fieldValue = participantData[condition.conditionField];
-
-                // Skip if participant data doesn't have the field
-                if (fieldValue === undefined) continue;
-
-                // Evaluate the condition
-                if (
-                        evaluateCondition(
-                                fieldValue,
-                                condition.conditionOperator,
-                                condition.conditionValue
-                        )
-                ) {
-                        benefitAmount = condition.benefitAmount;
-                        // Depending on your business logic, you can decide to break or continue
-                        break; // Assuming the first matching condition applies
-                }
-        }
-
-        return benefitAmount;
-}
-
-// Helper function to evaluate a single condition
+// Helper function to evaluate conditions
 function evaluateCondition(
         fieldValue: any,
         operator: string,
         conditionValue: any
 ): boolean {
-        // Convert field and condition values to numbers if possible
         const numericFieldValue = parseFloat(fieldValue);
         const numericConditionValue = parseFloat(conditionValue);
 
@@ -106,28 +76,110 @@ function evaluateCondition(
                         return fieldValue >= conditionValue;
                 case '<=':
                         return fieldValue <= conditionValue;
-                case '==':
-                        return fieldValue == conditionValue;
-                case '!=':
-                        return fieldValue != conditionValue;
+                case '===':
+                        return fieldValue === conditionValue;
+                case '!==':
+                        return fieldValue !== conditionValue;
                 default:
                         return false;
         }
 }
 
-// Example function to get a program by ID (optional)
-export async function getProgramById(programId: number): Promise<Program | null> {
-        const program = await db
-                .select()
-                .from(programs)
-                .where(eq(programs.id, programId))
-                .limit(1);
+// Main functions
+export async function addProgram(
+        programData: Program,
+        benefitConditionsData: BenefitConditionInput[]
+): Promise<void> {
+        try {
+                const validatedProgram = ProgramSchema.parse(programData);
+                const validatedConditions = z.array(BenefitConditionInputSchema).parse(benefitConditionsData);
 
-        return program.length > 0 ? program[0] : null;
+
+                await db.transaction(async (tx) => {
+                        const [insertedProgram] = await tx
+                                .insert(programs)
+                                .values(validatedProgram)
+                                .returning({ id: programs.id });
+
+                        const programId = insertedProgram.id;
+
+                        if (validatedConditions.length > 0) {
+                                const conditionsWithProgramId = validatedConditions.map((condition) => ({
+                                        ...condition,
+                                        conditionValue: String(condition.conditionValue),
+                                        programId,
+                                }));
+
+                                await tx.insert(benefitConditions).values(conditionsWithProgramId);
+                        }
+                });
+        } catch (error) {
+                console.error('Error adding program:', error);
+                throw new Error('Failed to add program');
+        }
 }
 
-// Example function to list all programs (optional)
-export async function listPrograms(): Promise<Program[]> {
-        const allPrograms = await db.select().from(programs);
-        return allPrograms;
+export async function calculateBenefitAmount(
+        programId: number,
+        participantData: Record<string, any>
+): Promise<number> {
+        try {
+                const conditions = await db
+                        .select()
+                        .from(benefitConditions)
+                        .where(eq(benefitConditions.programId, programId));
+
+                let benefitAmount = 0;
+
+                for (const condition of conditions) {
+                        const fieldValue = participantData[condition.conditionField];
+
+                        if (fieldValue === undefined) continue;
+
+                        if (evaluateCondition(
+                                fieldValue,
+                                condition.conditionOperator,
+                                condition.conditionValue
+                        )) {
+                                benefitAmount = condition.benefitAmount;
+                                break;
+                        }
+                }
+
+                return benefitAmount;
+        } catch (error) {
+                console.error('Error calculating benefit amount:', error);
+                throw new Error('Failed to calculate benefit amount');
+        }
+}
+
+export async function getProgramById(programId: number): Promise<Program | null> {
+        try {
+                const program = await db
+                        .select()
+                        .from(programs)
+                        .where(eq(programs.id, programId))
+                        .limit(1);
+
+                return program.length > 0 ? program[0] : null;
+        } catch (error) {
+                console.error('Error fetching program:', error);
+                throw new Error('Failed to fetch program');
+        }
+}
+
+export async function listPrograms(): Promise<Programs[]> {
+        try {
+                const allPrograms = await db.select().from(programs);
+                return allPrograms.map(program =>
+                        ProgramSchema.parse({
+                                ...program,
+                                cashTransferMonthlyAmount: program.cashTransferMonthlyAmount ?? null,
+                                inKindDollarValueAmt: program.inKindDollarValueAmt ?? null
+                        })
+                );
+        } catch (error) {
+                console.error('Error listing programs:', error);
+                throw new Error('Failed to list programs');
+        }
 }

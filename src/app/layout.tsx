@@ -26,17 +26,12 @@ export default function RootLayout({
 }: Readonly<{
         children: React.ReactNode;
 }>) {
-        const programs = [
-                { title: 'Cash Transfer Program', slug: 'cash-transfer' },
-                { title: 'Food Assistance', slug: 'food-assistance' },
-                // Add more programs as needed
-        ]
         return (
                 <html lang="en">
                         <body
                                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
                         >
-                                <SocialProtectionNavigation programs={programs} />
+                                <SocialProtectionNavigation />
                                 <Suspense>
                                         {children}
                                 </Suspense>

@@ -1,0 +1,281 @@
+Permissions Size User    Date Modified Git Name
+drwxr-xr-x     - dalbert 11 Nov 19:31   -N .
+.rw-r--r--   182 dalbert 28 Oct 19:38   -N ├── .env
+.rw-r--r--   146 dalbert 28 Oct 18:41   -- ├── .eslintrc.json
+.rw-r--r--   391 dalbert  8 Oct 23:16   -- ├── .gitignore
+drwxr-xr-x     - dalbert 28 Oct 09:09   -N ├── .wrangler
+drwxr-xr-x     - dalbert 28 Oct 09:09   -N │   ├── state
+drwxr-xr-x     - dalbert 28 Oct 13:00   -N │   │   └── v3
+drwxr-xr-x     - dalbert 28 Oct 09:09   -- │   │       ├── cache
+drwxr-xr-x     - dalbert 28 Oct 23:11   -N │   │       ├── d1
+drwxr-xr-x     - dalbert 28 Oct 09:09   -- │   │       └── workflows
+drwxr-xr-x     - dalbert 11 Nov 00:46   -N │   └── tmp
+drwx------     - dalbert 28 Oct 19:26   -N │       ├── bundle-1LYczF
+.rw-r--r--   833 dalbert 28 Oct 19:26   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:26   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:11   -- │       ├── bundle-3NlgPl
+drwx------     - dalbert 28 Oct 19:13   -N │       ├── bundle-5coa5W
+.rw-r--r--   833 dalbert 28 Oct 19:13   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 19:13   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:13   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 29 Oct 07:35   -- │       ├── bundle-6jwH97
+drwx------     - dalbert 28 Oct 19:11   -N │       ├── bundle-8AWDhh
+.rw-r--r--   833 dalbert 28 Oct 19:11   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 19:11   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:11   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 20:08   -N │       ├── bundle-8gpIzn
+.rw-r--r--   833 dalbert 28 Oct 20:08   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 20:08   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 20:08   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 19:08   -N │       ├── bundle-9lnccG
+.rw-r--r--   833 dalbert 28 Oct 19:08   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:08   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:10   -N │       ├── bundle-coP9js
+.rw-r--r--   833 dalbert 28 Oct 19:10   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:10   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:26   -- │       ├── bundle-E6Ei9z
+drwx------     - dalbert 28 Oct 19:13   -N │       ├── bundle-F9Yoxf
+.rw-r--r--   833 dalbert 28 Oct 19:13   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:13   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:18   -- │       ├── bundle-FCJv7n
+drwx------     - dalbert 28 Oct 19:08   -- │       ├── bundle-FX7X59
+drwx------     - dalbert 28 Oct 19:08   -N │       ├── bundle-g9JT60
+.rw-r--r--   833 dalbert 28 Oct 19:08   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 19:08   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:08   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 18:51   -N │       ├── bundle-GYQtnm
+.rw-r--r--   833 dalbert 28 Oct 18:51   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 18:51   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 18:51   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 20:20   -- │       ├── bundle-HMg4gz
+drwx------     - dalbert 28 Oct 19:10   -N │       ├── bundle-I80NX3
+.rw-r--r--   833 dalbert 28 Oct 19:10   -N │       │   ├── checked-fetch.js
+.rw-r--r--   880 dalbert 28 Oct 19:10   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:10   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 19:10   -- │       ├── bundle-KFgBhc
+drwx------     - dalbert 28 Oct 18:51   -- │       ├── bundle-KGQy37
+drwx------     - dalbert 28 Oct 19:19   -N │       ├── bundle-l711DF
+.rw-r--r--   833 dalbert 28 Oct 19:19   -N │       │   ├── checked-fetch.js
+.rw-r--r--   882 dalbert 28 Oct 19:19   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:19   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 20:08   -N │       ├── bundle-mLok4k
+.rw-r--r--   833 dalbert 28 Oct 20:08   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 20:08   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 20:20   -N │       ├── bundle-NUXlsa
+.rw-r--r--   833 dalbert 28 Oct 20:20   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 20:20   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 20:08   -- │       ├── bundle-o3boA1
+drwx------     - dalbert 28 Oct 20:20   -N │       ├── bundle-oXMzC1
+.rw-r--r--   833 dalbert 28 Oct 20:20   -N │       │   ├── checked-fetch.js
+.rw-r--r--   880 dalbert 28 Oct 20:20   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 20:20   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 19:11   -N │       ├── bundle-qGn8HW
+.rw-r--r--   833 dalbert 28 Oct 19:11   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:11   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:19   -- │       ├── bundle-Rc1UwA
+drwx------     - dalbert 28 Oct 19:18   -N │       ├── bundle-RppX6Y
+.rw-r--r--   833 dalbert 28 Oct 19:18   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:18   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:19   -N │       ├── bundle-rxLXiy
+.rw-r--r--   833 dalbert 28 Oct 19:19   -N │       │   ├── checked-fetch.js
+.rw-r--r--     0 dalbert 28 Oct 19:19   -N │       │   └── middleware-insertion-facade.js
+drwx------     - dalbert 28 Oct 19:26   -N │       ├── bundle-TSpIC5
+.rw-r--r--   833 dalbert 28 Oct 19:26   -N │       │   ├── checked-fetch.js
+.rw-r--r--   880 dalbert 28 Oct 19:26   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:26   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 19:18   -N │       ├── bundle-wwFGyR
+.rw-r--r--   833 dalbert 28 Oct 19:18   -N │       │   ├── checked-fetch.js
+.rw-r--r--   884 dalbert 28 Oct 19:18   -N │       │   ├── middleware-insertion-facade.js
+.rw-r--r--  4.3k dalbert 28 Oct 19:18   -N │       │   └── middleware-loader.entry.ts
+drwx------     - dalbert 28 Oct 19:13   -- │       ├── bundle-YppJUE
+drwx------     - dalbert 28 Oct 19:19   -- │       ├── dev-2kNsNU
+drwx------     - dalbert 28 Oct 19:13   -- │       ├── dev-7lkW06
+drwx------     - dalbert 28 Oct 19:18   -N │       ├── dev-8QgSBG
+.rw-r--r--   46k dalbert 28 Oct 19:18   -N │       │   ├── 04u2msd32foq.js
+.rw-r--r--   77k dalbert 28 Oct 19:18   -N │       │   ├── 04u2msd32foq.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:18   -N │       │   └── __next-on-pages-dist__
+drwx------     - dalbert 28 Oct 20:08   -N │       ├── dev-CHUppF
+drwxr-xr-x     - dalbert 28 Oct 20:08   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--  129k dalbert 28 Oct 20:08   -N │       │   ├── ijq2peuxe4m.js
+.rw-r--r--  199k dalbert 28 Oct 20:08   -N │       │   └── ijq2peuxe4m.js.map
+drwx------     - dalbert 28 Oct 18:51   -N │       ├── dev-EIf7aS
+drwxr-xr-x     - dalbert 28 Oct 18:51   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   46k dalbert 28 Oct 18:51   -N │       │   ├── jpdi8smkjpf.js
+.rw-r--r--   77k dalbert 28 Oct 18:51   -N │       │   └── jpdi8smkjpf.js.map
+drwx------     - dalbert 28 Oct 19:08   -- │       ├── dev-FQCPCw
+drwx------     - dalbert 28 Oct 19:26   -N │       ├── dev-gBi6jg
+drwxr-xr-x     - dalbert 28 Oct 19:26   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   46k dalbert 28 Oct 19:26   -N │       │   ├── qepps9byel.js
+.rw-r--r--   77k dalbert 28 Oct 19:26   -N │       │   └── qepps9byel.js.map
+drwx------     - dalbert 28 Oct 19:19   -N │       ├── dev-hmNByf
+drwxr-xr-x     - dalbert 28 Oct 19:19   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   46k dalbert 28 Oct 19:19   -N │       │   ├── filq401ppj8.js
+.rw-r--r--   77k dalbert 28 Oct 19:19   -N │       │   └── filq401ppj8.js.map
+drwx------     - dalbert 28 Oct 19:10   -- │       ├── dev-imFgRQ
+drwx------     - dalbert 28 Oct 19:11   -N │       ├── dev-LH10bC
+.rw-r--r--   46k dalbert 28 Oct 19:11   -N │       │   ├── 6y18hnhpbfm.js
+.rw-r--r--   77k dalbert 28 Oct 19:11   -N │       │   ├── 6y18hnhpbfm.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:11   -N │       │   └── __next-on-pages-dist__
+drwx------     - dalbert 28 Oct 20:20   -N │       ├── dev-LJ65MI
+drwxr-xr-x     - dalbert 28 Oct 20:20   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--  129k dalbert 28 Oct 20:20   -N │       │   ├── o4pbxefl8j.js
+.rw-r--r--  199k dalbert 28 Oct 20:20   -N │       │   └── o4pbxefl8j.js.map
+drwx------     - dalbert 28 Oct 19:08   -N │       ├── dev-m1KBLm
+.rw-r--r--   46k dalbert 28 Oct 19:08   -N │       │   ├── 6fwbl47e2mw.js
+.rw-r--r--   77k dalbert 28 Oct 19:08   -N │       │   ├── 6fwbl47e2mw.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:08   -N │       │   └── __next-on-pages-dist__
+drwx------     - dalbert 28 Oct 20:08   -- │       ├── dev-msyXS2
+drwx------     - dalbert 28 Oct 20:20   -- │       ├── dev-o8TtSs
+drwx------     - dalbert 28 Oct 19:18   -- │       ├── dev-oTfpHw
+drwx------     - dalbert 28 Oct 19:26   -- │       ├── dev-RO3G1n
+drwx------     - dalbert 28 Oct 19:13   -N │       ├── dev-y1Gk4u
+drwxr-xr-x     - dalbert 28 Oct 19:13   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   46k dalbert 28 Oct 19:13   -N │       │   ├── dd0eij9js4j.js
+.rw-r--r--   77k dalbert 28 Oct 19:13   -N │       │   └── dd0eij9js4j.js.map
+drwx------     - dalbert 28 Oct 19:11   -- │       ├── dev-yCL4wm
+drwx------     - dalbert 28 Oct 19:10   -N │       ├── dev-Z8nii6
+drwxr-xr-x     - dalbert 28 Oct 19:10   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   46k dalbert 28 Oct 19:10   -N │       │   ├── lufro4aew1.js
+.rw-r--r--   77k dalbert 28 Oct 19:10   -N │       │   └── lufro4aew1.js.map
+drwx------     - dalbert 28 Oct 18:51   -N │       ├── pages-A5EsTZ
+drwxr-xr-x     - dalbert 28 Oct 18:51   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 18:51   -N │       │   ├── bundledWorker-0.18874163358102503.mjs
+.rw-r--r--   58k dalbert 28 Oct 18:51   -N │       │   ├── bundledWorker-0.18874163358102503.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 18:51   -N │       │   ├── jpdi8smkjpf.js
+.rw-r--r--  1.8k dalbert 28 Oct 18:51   -N │       │   └── jpdi8smkjpf.js.map
+drwx------     - dalbert 28 Oct 20:08   -N │       ├── pages-gpr4gR
+drwxr-xr-x     - dalbert 28 Oct 20:08   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   90k dalbert 28 Oct 20:08   -N │       │   ├── bundledWorker-0.7271349752660055.mjs
+.rw-r--r--  125k dalbert 28 Oct 20:08   -N │       │   ├── bundledWorker-0.7271349752660055.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 20:08   -N │       │   ├── ijq2peuxe4m.js
+.rw-r--r--  1.8k dalbert 28 Oct 20:08   -N │       │   └── ijq2peuxe4m.js.map
+drwx------     - dalbert 28 Oct 19:18   -N │       ├── pages-JHrm3g
+.rw-r--r--  1.5k dalbert 28 Oct 19:18   -N │       │   ├── 04u2msd32foq.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:18   -N │       │   ├── 04u2msd32foq.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:18   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:18   -N │       │   ├── bundledWorker-0.8808687772911381.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:18   -N │       │   └── bundledWorker-0.8808687772911381.mjs.map
+drwx------     - dalbert 29 Oct 07:35   -N │       ├── pages-NDAatw
+drwxr-xr-x     - dalbert 29 Oct 07:35   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   90k dalbert 29 Oct 07:35   -N │       │   ├── bundledWorker-0.03499888876443302.mjs
+.rw-r--r--  124k dalbert 29 Oct 07:35   -N │       │   └── bundledWorker-0.03499888876443302.mjs.map
+drwx------     - dalbert 28 Oct 19:08   -N │       ├── pages-oWw3Qh
+.rw-r--r--  1.5k dalbert 28 Oct 19:08   -N │       │   ├── 6fwbl47e2mw.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:08   -N │       │   ├── 6fwbl47e2mw.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:08   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:08   -N │       │   ├── bundledWorker-0.019940082677408544.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:08   -N │       │   └── bundledWorker-0.019940082677408544.mjs.map
+drwx------     - dalbert 28 Oct 19:10   -N │       ├── pages-QBggUY
+drwxr-xr-x     - dalbert 28 Oct 19:10   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:10   -N │       │   ├── bundledWorker-0.9770642256004238.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:10   -N │       │   ├── bundledWorker-0.9770642256004238.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 19:10   -N │       │   ├── lufro4aew1.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:10   -N │       │   └── lufro4aew1.js.map
+drwx------     - dalbert 28 Oct 20:20   -N │       ├── pages-sXhvPi
+drwxr-xr-x     - dalbert 28 Oct 20:20   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   90k dalbert 28 Oct 20:20   -N │       │   ├── bundledWorker-0.8153020782554872.mjs
+.rw-r--r--  125k dalbert 28 Oct 20:20   -N │       │   ├── bundledWorker-0.8153020782554872.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 20:20   -N │       │   ├── o4pbxefl8j.js
+.rw-r--r--  1.8k dalbert 28 Oct 20:20   -N │       │   └── o4pbxefl8j.js.map
+drwx------     - dalbert 28 Oct 19:26   -N │       ├── pages-SXvPRq
+drwxr-xr-x     - dalbert 28 Oct 19:26   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:26   -N │       │   ├── bundledWorker-0.8474339918352314.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:26   -N │       │   ├── bundledWorker-0.8474339918352314.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 19:26   -N │       │   ├── qepps9byel.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:26   -N │       │   └── qepps9byel.js.map
+drwx------     - dalbert 28 Oct 19:19   -N │       ├── pages-uwHVcc
+drwxr-xr-x     - dalbert 28 Oct 19:19   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:19   -N │       │   ├── bundledWorker-0.22112288720857132.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:19   -N │       │   ├── bundledWorker-0.22112288720857132.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 19:19   -N │       │   ├── filq401ppj8.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:19   -N │       │   └── filq401ppj8.js.map
+drwx------     - dalbert 28 Oct 19:11   -N │       ├── pages-ViQn2y
+.rw-r--r--  1.5k dalbert 28 Oct 19:11   -N │       │   ├── 6y18hnhpbfm.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:11   -N │       │   ├── 6y18hnhpbfm.js.map
+drwxr-xr-x     - dalbert 28 Oct 19:11   -N │       │   ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:11   -N │       │   ├── bundledWorker-0.7886310664267191.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:11   -N │       │   └── bundledWorker-0.7886310664267191.mjs.map
+drwx------     - dalbert 28 Oct 19:13   -N │       └── pages-W5LKb7
+drwxr-xr-x     - dalbert 28 Oct 19:13   -N │           ├── __next-on-pages-dist__
+.rw-r--r--   36k dalbert 28 Oct 19:13   -N │           ├── bundledWorker-0.1464343501344565.mjs
+.rw-r--r--   58k dalbert 28 Oct 19:13   -N │           ├── bundledWorker-0.1464343501344565.mjs.map
+.rw-r--r--  1.5k dalbert 28 Oct 19:13   -N │           ├── dd0eij9js4j.js
+.rw-r--r--  1.8k dalbert 28 Oct 19:13   -N │           └── dd0eij9js4j.js.map
+.rw-r--r--   418 dalbert  8 Oct 23:22   -- ├── components.json
+.rw-r--r--  1.2k dalbert 28 Oct 23:37   -- ├── drizzle.config.ts
+.rw-r--r--   150 dalbert 28 Oct 23:00   -- ├── env.d.ts
+.rw-r--r--   135 dalbert 28 Oct 19:40   -- ├── globals.d.ts
+drwxr-xr-x     - dalbert 28 Oct 19:05   -- ├── migrations
+.rw-r--r--  1.1k dalbert  9 Oct 14:07   -- │   ├── 0000_clean_the_enforcers.sql
+.rw-r--r--  2.7k dalbert 28 Oct 19:05   -- │   ├── 0001_graceful_cyclops.sql
+drwxr-xr-x     - dalbert 28 Oct 19:05   -- │   └── meta
+.rw-r--r--  6.2k dalbert  9 Oct 14:07   -- │       ├── 0000_snapshot.json
+.rw-r--r--  6.3k dalbert 28 Oct 19:05   -- │       ├── 0001_snapshot.json
+.rw-r--r--   353 dalbert 28 Oct 19:05   -- │       └── _journal.json
+.rw-r--r--   247 dalbert 28 Oct 07:50   -- ├── next.config.mjs
+.rw-r--r--  2.2k dalbert 29 Oct 22:51   -M ├── package.json
+.rw-r--r--  293k dalbert 29 Oct 22:51   -M ├── pnpm-lock.yaml
+.rw-r--r--   135 dalbert  8 Oct 23:16   -- ├── postcss.config.mjs
+drwxr-xr-x     - dalbert 29 Oct 23:03   -N ├── public
+.rw-r--r--  8.4k dalbert 29 Oct 22:39   -N │   ├── caritas.jpg
+.rw-r--r--  8.3k dalbert 29 Oct 22:39   -N │   ├── ccd.jpg
+.rw-r--r--   21k dalbert 29 Oct 22:39   -N │   ├── crs.png
+.rw-r--r--   62k dalbert 29 Oct 23:03   -N │   └── UE4z70fp_400x400-removebg-preview.png
+.rw-r--r--  1.4k dalbert  8 Oct 23:16   -- ├── README.md
+drwxr-xr-x     - dalbert 29 Oct 23:01   -N ├── src
+drwxr-xr-x     - dalbert 30 Oct 18:34   -M │   ├── app
+drwxr-xr-x     - dalbert 28 Oct 23:24   -- │   │   ├── add-programs
+.rw-r--r--  4.0k dalbert 28 Oct 23:24   -- │   │   │   ├── actions.ts
+.rw-r--r--   397 dalbert 28 Oct 13:01   -- │   │   │   └── page.tsx
+drwxr-xr-x     - dalbert 29 Oct 07:31   -- │   │   ├── benefit-displayer
+.rw-r--r--  3.7k dalbert  9 Oct 11:10   -- │   │   │   ├── columns.tsx
+.rw-r--r--  8.1k dalbert 29 Oct 07:31   -- │   │   │   └── page.tsx
+.rw-r--r--  4.3k dalbert 29 Oct 23:04   -M │   │   ├── favicon.ico
+drwxr-xr-x     - dalbert  8 Oct 23:16   -- │   │   ├── fonts
+.rw-r--r--   68k dalbert  8 Oct 23:16   -- │   │   │   ├── GeistMonoVF.woff
+.rw-r--r--   66k dalbert  8 Oct 23:16   -- │   │   │   └── GeistVF.woff
+.rw-r--r--  1.9k dalbert  8 Oct 23:22   -- │   │   ├── globals.css
+.rw-r--r--  1.3k dalbert 30 Oct 18:25   -M │   │   ├── layout.tsx
+.rw-r--r--   16k dalbert 30 Oct 18:34   -M │   │   ├── page.tsx
+drwxr-xr-x     - dalbert 30 Oct 18:56   -M │   │   └── programs
+.rw-r--r--  1.9k dalbert 23 Oct 15:16   -- │   │       ├── columns.tsx
+.rw-r--r--   22k dalbert 30 Oct 18:56   -M │   │       └── page.tsx
+drwxr-xr-x     - dalbert 30 Oct 18:48   -N │   ├── components
+.rw-r--r--  4.0k dalbert  8 Oct 23:43   -- │   │   ├── data-table.tsx
+drwxr-xr-x     - dalbert 28 Oct 22:57   -- │   │   ├── forms
+.rw-r--r--   58k dalbert 28 Oct 22:57   -- │   │   │   ├── AddProgramsForm.tsx
+.rw-r--r--   27k dalbert  9 Oct 09:23   -- │   │   │   └── BenefitsQuery.tsx
+.rw-r--r--   689 dalbert  8 Oct 23:58   -- │   │   ├── mode-toggle.tsx
+.rw-r--r--  6.6k dalbert 30 Oct 18:24   -M │   │   ├── SearchCommand.tsx
+.rw-r--r--  5.9k dalbert 30 Oct 18:48   -M │   │   ├── SocialProtectionNavigation.tsx
+drwxr-xr-x     - dalbert 30 Oct 18:49   -N │   │   └── ui
+.rw-r--r--  2.0k dalbert  8 Oct 23:47   -- │   │       ├── accordion.tsx
+.rw-r--r--  1.6k dalbert  8 Oct 23:24   -- │   │       ├── alert.tsx
+.rw-r--r--  1.1k dalbert 30 Oct 18:49   -N │   │       ├── badge.tsx
+.rw-r--r--  1.8k dalbert  8 Oct 23:37   -- │   │       ├── button.tsx
+.rw-r--r--  1.8k dalbert  8 Oct 23:24   -- │   │       ├── card.tsx
+.rw-r--r--  1.0k dalbert  9 Oct 11:37   -- │   │       ├── checkbox.tsx
+.rw-r--r--  4.9k dalbert  8 Oct 23:57   -- │   │       ├── command.tsx
+.rw-r--r--  3.9k dalbert  8 Oct 23:57   -- │   │       ├── dialog.tsx
+.rw-r--r--  4.1k dalbert  8 Oct 23:37   -- │   │       ├── form.tsx
+.rw-r--r--   822 dalbert  8 Oct 23:24   -- │   │       ├── input.tsx
+.rw-r--r--   724 dalbert  8 Oct 23:37   -- │   │       ├── label.tsx
+.rw-r--r--  5.1k dalbert  8 Oct 23:52   -- │   │       ├── navigation-menu.tsx
+.rw-r--r--  5.7k dalbert  8 Oct 23:24   -- │   │       ├── select.tsx
+.rw-r--r--   266 dalbert 30 Oct 18:49   -N │   │       ├── skeleton.tsx
+.rw-r--r--  1.2k dalbert  8 Oct 23:24   -- │   │       ├── switch.tsx
+.rw-r--r--  2.9k dalbert  8 Oct 23:24   -- │   │       ├── table.tsx
+.rw-r--r--  1.9k dalbert  9 Oct 12:53   -- │   │       ├── tabs.tsx
+.rw-r--r--   732 dalbert  9 Oct 11:37   -- │   │       ├── textarea.tsx
+.rw-r--r--  1.2k dalbert 29 Oct 22:51   -N │   │       └── tooltip.tsx
+drwxr-xr-x     - dalbert 30 Oct 18:24   -N │   └── lib
+.rw-r--r--  6.7k dalbert 28 Oct 23:09   -- │       ├── actions.ts
+.rw-r--r--   139 dalbert 28 Oct 23:09   -- │       ├── db.ts
+.rw-r--r--   393 dalbert  8 Oct 23:38   -- │       ├── formatter.ts
+.rw-r--r--  1.9k dalbert 28 Oct 08:18   -- │       ├── schema.ts
+.rw-r--r--  4.5k dalbert 30 Oct 18:24   -N │       ├── static-data.ts
+.rw-r--r--   166 dalbert  8 Oct 23:22   -- │       └── utils.ts
+.rw-r--r--  2.1k dalbert  8 Oct 23:47   -- ├── tailwind.config.ts
+.rw-r--r--     0 dalbert 11 Nov 19:31   -N ├── tree.txt
+.rw-r--r--   670 dalbert 23 Oct 16:16   -- ├── tsconfig.json
+.rw-r--r--   324 dalbert 29 Oct 07:27   -- └── wrangler.toml

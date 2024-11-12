@@ -1,15 +1,34 @@
+// app/benefit-displayer/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DataTable from '@/components/data-table';
-import { SocialProtectionProgram, createColumns } from "./columns";
-//import { generateMock } from "@anatine/zod-mock";
-//import seedrandom from 'seedrandom';
-import { ColumnDef } from '@tanstack/react-table';
+import { createColumns } from "./columns";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { getEligiblePrograms } from '@/lib/actions';
+import { Programs } from '@/lib/types';
+import { calculateBenefitAmount } from '@/lib/actions';
 
-// Currency information for each country
+// Define the interface for the parameters
+interface EligibilityParams {
+        age: string;
+        gender: string;
+        numberOfDependents: string;
+        typeOfDependents: string;
+        employmentStatus: string;
+        disabilityStatus: string;
+        chronicIllnessStatus: string;
+        householdSize: string;
+        countryOfOrigin: string;
+        countryOfResidence: string;
+}
+
 const currencyInfo = {
         "1": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Dominica
         "2": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Grenada
@@ -18,135 +37,264 @@ const currencyInfo = {
         "5": { code: "TTD", symbol: "TT$", name: "Trinidad and Tobago Dollar" }, // Trinidad and Tobago
 };
 
-// Default currency (using Dominica's currency as default)
-const defaultCurrency = currencyInfo["1"];
-
-// Generate seeded mock data
-//function generateSeededMockData(seed: string): SocialProtectionProgram[] {
-//        const rng = seedrandom(seed);
-//        return Array.from({ length: 50 }, () =>
-//                generateMock(socialProtectionProgramSchema));
-//}
-
-// Define the type for the table data
-type TableData = {
-        programTitle: string;
-        responsibleOrganization: string;
-        programDescription: string;
-        cashTransferMonthly: number;
-        inKindDollarValueAmt: number;
+const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                        duration: 0.5,
+                        staggerChildren: 0.1
+                }
+        }
 };
 
-// Use a constant seed for consistent data generation
-//const MOCK_DATA_SEED = "constant-seed-for-mock-data";
+const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+};
+
 
 export default function BenefitsDisplayer() {
         const searchParams = useSearchParams();
-        const [filteredPrograms, setFilteredPrograms] = useState<SocialProtectionProgram[]>([]);
-        const [currency, setCurrency] = useState(defaultCurrency);
-        const [tableData, setTableData] = useState<TableData[]>([]);
-        const [columns, setColumns] = useState<ColumnDef<TableData>[]>([]);
+        const [eligiblePrograms, setEligiblePrograms] = useState<Programs[]>([]);
+        const [currency, setCurrency] = useState(currencyInfo["1"]);
+        const [isLoading, setIsLoading] = useState(true);
+        const [activeTab, setActiveTab] = useState('summary');
+        const [error, setError] = useState<string | null>(null);
 
         useEffect(() => {
-                const mockPrograms: any[] = [];
+                const fetchEligiblePrograms = async () => {
+                        setIsLoading(true);
+                        setError(null);
 
-                const age = searchParams.get('age');
-                const gender = searchParams.get('gender');
-                const numberOfDependents = searchParams.get('numberOfDependents');
-                const typeOfDependents = searchParams.get('typeOfDependents');
-                const disabilityStatus = searchParams.get('disabilityStatus');
-                const chronicIllnessStatus = searchParams.get('chronicIllnessStatus');
-                const employmentStatus = searchParams.get('employmentStatus');
-                const householdSize = searchParams.get('householdSize');
-                const countryOfOrigin = searchParams.get('countryOfOrigin');
-                const countryOfResidence = searchParams.get('countryOfResidence');
+                        try {
+                                // Get all required search params
+                                const requiredParams = [
+                                        'age',
+                                        'gender',
+                                        'numberOfDependents',
+                                        'typeOfDependents',
+                                        'employmentStatus',
+                                        'disabilityStatus',
+                                        'chronicIllnessStatus',
+                                        'householdSize',
+                                        'countryOfOrigin',
+                                        'countryOfResidence'
+                                ];
 
-                if (!age || !gender || !numberOfDependents || !typeOfDependents || !disabilityStatus ||
-                        !chronicIllnessStatus || !employmentStatus || !householdSize || !countryOfOrigin || !countryOfResidence) {
-                        // Handle the case where not all parameters are present
-                        return;
-                }
+                                const params: EligibilityParams = {
+                                        age: '',
+                                        gender: '',
+                                        numberOfDependents: '',
+                                        typeOfDependents: '',
+                                        employmentStatus: '',
+                                        disabilityStatus: '',
+                                        chronicIllnessStatus: '',
+                                        householdSize: '',
+                                        countryOfOrigin: '',
+                                        countryOfResidence: ''
+                                };
 
-                const filtered = mockPrograms.filter(program =>
-                        program.ageMinimum <= parseInt(age) &&
-                        program.ageMaximum >= parseInt(age) &&
-                        program.numberOfDependents >= parseInt(numberOfDependents) &&
-                        program.householdSize >= parseInt(householdSize) &&
-                        (program.typeOfDependents === typeOfDependents || program.typeOfDependents === '3') &&
-                        (program.gender === gender || program.gender === '4') &&
-                        (program.employmentStatus === employmentStatus || program.employmentStatus === '5') &&
-                        (program.chronicIllnessStatus <= chronicIllnessStatus || program.chronicIllnessStatus === '4') &&
-                        (program.disabilityStatus <= disabilityStatus || program.disabilityStatus === '4') &&
-                        program.countryOfResidence === countryOfResidence &&
-                        (program.countryOfOrigin === countryOfOrigin || program.countryOfOrigin === '3')
-                );
+                                // Validate and collect all required parameters
+                                for (const param of requiredParams) {
+                                        const value = searchParams.get(param);
+                                        if (!value) {
+                                                throw new Error(`Missing required parameter: ${param}`);
+                                        }
+                                        params[param as keyof EligibilityParams] = value;
+                                }
 
-                setFilteredPrograms(filtered);
+                                // Fetch eligible programs
+                                const programs = await getEligiblePrograms(params);
 
-                // Set the currency based on countryOfResidence
-                const selectedCurrency = currencyInfo[countryOfResidence as keyof typeof currencyInfo] || defaultCurrency;
-                setCurrency(selectedCurrency);
-                const countryCode = countryOfResidence as keyof typeof currencyInfo;
-                const columns = createColumns(countryCode);
-                setColumns(columns)
+                                // Calculate benefit amounts for each program
+                                const programsWithBenefits = await Promise.all(
+                                        programs.map(async (program) => {
+                                                const benefitAmount = await calculateBenefitAmount(program.id, params);
+                                                return {
+                                                        ...program,
+                                                        calculatedBenefit: benefitAmount
+                                                };
+                                        })
+                                );
 
-                // Prepare table data
-                const newTableData: TableData[] = filtered.map(program => ({
-                        programTitle: program.programTitle,
-                        responsibleOrganization: program.responsibleOrganization,
-                        programDescription: program.programDescription,
-                        cashTransferMonthly: program.cashTransferMonthly,
-                        inKindDollarValueAmt: program.inKindDollarValueAmt,
-                }));
-                setTableData(newTableData);
+                                setEligiblePrograms(programsWithBenefits);
+
+                                // Set currency based on country of residence
+                                const countryCode = params.countryOfResidence as keyof typeof currencyInfo;
+                                setCurrency(currencyInfo[countryCode] || currencyInfo["1"]);
+                        } catch (err) {
+                                console.error('Error fetching programs:', err);
+                                setError(err instanceof Error ? err.message : 'An error occurred');
+                        } finally {
+                                setIsLoading(false);
+                        }
+                };
+
+                fetchEligiblePrograms();
         }, [searchParams]);
 
-        const totalCashTransfer = filteredPrograms.reduce((sum, program) => sum + program.cashTransferMonthly, 0);
-        const totalInKindValue = filteredPrograms.reduce((sum, program) => sum + program.inKindDollarValueAmt, 0);
+        // Calculate totals
+        const totalCashTransfer = eligiblePrograms.reduce((sum, program) =>
+                sum + (program.cashTransferMonthlyAmount || 0), 0);
+
+        const totalInKindValue = eligiblePrograms.reduce((sum, program) =>
+                sum + (program.inKindDollarValueAmt || 0), 0);
+
         const totalBenefits = totalCashTransfer + totalInKindValue;
 
-        return (
-                <main className="container mx-auto py-10 space-y-10">
-                        <h1 className="text-3xl font-bold text-center">Benefits Summary</h1>
-                        <p className="text-center text-muted-foreground">All amounts are in {currency.name} ({currency.code})</p>
+        // Prepare table data
+        const tableData = eligiblePrograms.map(program => ({
+                programTitle: program.programTitle,
+                responsibleOrganization: program.responsibleOrganization,
+                programDescription: program.programDescription,
+                cashTransferMonthly: program.cashTransferMonthlyAmount || 0,
+                inKindDollarValueAmt: program.inKindDollarValueAmt || 0,
+        }));
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <Card>
-                                        <CardHeader>
-                                                <CardTitle>Total Cash Transfer</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                                <p className="text-3xl font-bold">{currency.symbol}{totalCashTransfer.toFixed(2)}</p>
-                                        </CardContent>
-                                </Card>
+        // Get the columns using the createColumns function
+        const columns = createColumns(
+                (searchParams.get('countryOfResidence') as keyof typeof currencyInfo) || "1"
+        );
 
-                                <Card>
-                                        <CardHeader>
-                                                <CardTitle>Total In-Kind Value</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                                <p className="text-3xl font-bold">{currency.symbol}{totalInKindValue.toFixed(2)}</p>
-                                        </CardContent>
-                                </Card>
+        // Chart data
+        const chartData = eligiblePrograms.map(program => ({
+                name: program.programTitle,
+                cashTransfer: program.cashTransferMonthlyAmount || 0,
+                inKindValue: program.inKindDollarValueAmt || 0,
+        }));
 
+        const handleExportCSV = () => {
+                const headers = ['Program Title', 'Organization', 'Description', 'Cash Transfer', 'In-Kind Value', 'Calculated Benefit'];
+                const csvData = tableData.map(row => [
+                        row.programTitle,
+                        row.responsibleOrganization,
+                        row.programDescription,
+                        row.cashTransferMonthly,
+                        row.inKindDollarValueAmt,
+                ]);
+
+                const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'benefits-summary.csv';
+                a.click();
+        };
+
+        if (error) {
+                return (
+                        <div className="container mx-auto py-10">
                                 <Card>
-                                        <CardHeader>
-                                                <CardTitle>Total Benefits</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                                <p className="text-3xl font-bold">{currency.symbol}{totalBenefits.toFixed(2)}</p>
+                                        <CardContent className="flex items-center justify-center p-6">
+                                                <p className="text-red-500">{error}</p>
                                         </CardContent>
                                 </Card>
                         </div>
+                );
+        }
 
-                        <Card>
-                                <CardHeader>
-                                        <CardTitle>Eligible Programs</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                        <DataTable columns={columns} data={tableData} />
-                                </CardContent>
-                        </Card>
-                </main>
+
+        return (
+                <AnimatePresence>
+                        <motion.main
+                                className="container mx-auto py-10 space-y-10"
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                        >
+                                <motion.div variants={itemVariants}>
+                                        <h1 className="text-3xl font-bold text-center">Benefits Summary</h1>
+                                        <p className="text-center text-muted-foreground">
+                                                All amounts are in {currency.name} ({currency.code})
+                                        </p>
+                                </motion.div>
+
+                                <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+                                        <TabsList className="grid w-full grid-cols-3">
+                                                <TabsTrigger value="summary">Summary</TabsTrigger>
+                                                <TabsTrigger value="details">Program Details</TabsTrigger>
+                                                <TabsTrigger value="visualization">Visualization</TabsTrigger>
+                                        </TabsList>
+
+                                        <TabsContent value="summary">
+                                                <motion.div
+                                                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                                                        variants={containerVariants}
+                                                >
+                                                        <motion.div variants={itemVariants}>
+                                                                <Card>
+                                                                        <CardHeader>
+                                                                                <CardTitle>Total Cash Transfer</CardTitle>
+                                                                        </CardHeader>
+                                                                        <CardContent>
+                                                                                <p className="text-3xl font-bold">
+                                                                                        {currency.symbol}{totalCashTransfer.toFixed(2)}
+                                                                                </p>
+                                                                        </CardContent>
+                                                                </Card>
+                                                        </motion.div>
+
+                                                        <Card>
+                                                                <CardHeader>
+                                                                        <CardTitle>Total Benefits</CardTitle>
+                                                                </CardHeader>
+                                                                <CardContent>
+                                                                        <p className="text-3xl font-bold">{currency.symbol}{totalBenefits.toFixed(2)}</p>
+                                                                </CardContent>
+                                                        </Card>
+                                                </motion.div>
+                                        </TabsContent>
+
+                                        <TabsContent value="details">
+                                                <Card>
+                                                        <CardHeader className="flex flex-row items-center justify-between">
+                                                                <CardTitle>Eligible Programs</CardTitle>
+                                                                <Button onClick={handleExportCSV} variant="outline">
+                                                                        <Download className="mr-2 h-4 w-4" />
+                                                                        Export CSV
+                                                                </Button>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                                {isLoading ? (
+                                                                        <div className="flex items-center justify-center h-40">
+                                                                                <motion.div
+                                                                                        animate={{ rotate: 360 }}
+                                                                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                                                        className="w-6 h-6 border-2 border-primary rounded-full border-t-transparent"
+                                                                                />
+                                                                        </div>
+                                                                ) : (
+                                                                        <DataTable columns={columns} data={tableData} />
+                                                                )}
+                                                        </CardContent>
+                                                </Card>
+                                        </TabsContent>
+
+                                        <TabsContent value="visualization">
+                                                <Card>
+                                                        <CardHeader>
+                                                                <CardTitle>Benefits Distribution</CardTitle>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                                <div className="w-full overflow-x-auto">
+                                                                        <LineChart width={800} height={400} data={chartData}>
+                                                                                <CartesianGrid strokeDasharray="3 3" />
+                                                                                <XAxis dataKey="name" />
+                                                                                <YAxis />
+                                                                                <Tooltip />
+                                                                                <Legend />
+                                                                                <Line type="monotone" dataKey="cashTransfer" stroke="#8884d8" name="Cash Transfer" />
+                                                                                <Line type="monotone" dataKey="inKindValue" stroke="#82ca9d" name="In-Kind Value" />
+                                                                        </LineChart>
+                                                                </div>
+                                                        </CardContent>
+                                                </Card>
+                                        </TabsContent>
+                                </Tabs>
+                        </motion.main>
+                </AnimatePresence>
         );
 }

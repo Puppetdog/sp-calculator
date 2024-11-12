@@ -36,9 +36,23 @@ const BenefitConditionInputSchema = z.object({
         benefitAmount: z.number()
 });
 
+// Define the EligibilityParams interface
+export interface EligibilityParams {
+        age: string;
+        gender: string;
+        numberOfDependents: string;
+        typeOfDependents: string;
+        employmentStatus: string;
+        disabilityStatus: string;
+        chronicIllnessStatus: string;
+        householdSize: string;
+        countryOfOrigin: string;
+        countryOfResidence: string;
+}
+
 // Types
-type Program = typeof programs.$inferInsert;
-type Programs = typeof programs.$inferSelect;
+export type Program = typeof programs.$inferInsert;
+export type Programs = typeof programs.$inferSelect;
 
 export interface BenefitConditionInput {
         benefitType: 'cash' | 'in-kind';
@@ -47,8 +61,6 @@ export interface BenefitConditionInput {
         conditionValue: string;
         benefitAmount: number;
 }
-
-// Helper function to get database instance
 
 // Helper function to evaluate conditions
 function evaluateCondition(
@@ -94,7 +106,6 @@ export async function addProgram(
                 const validatedProgram = ProgramSchema.parse(programData);
                 const validatedConditions = z.array(BenefitConditionInputSchema).parse(benefitConditionsData);
 
-
                 await db.transaction(async (tx) => {
                         const [insertedProgram] = await tx
                                 .insert(programs)
@@ -121,7 +132,7 @@ export async function addProgram(
 
 export async function calculateBenefitAmount(
         programId: number,
-        participantData: Record<string, any>
+        participantData: EligibilityParams
 ): Promise<number> {
         try {
                 const conditions = await db
@@ -132,7 +143,7 @@ export async function calculateBenefitAmount(
                 let benefitAmount = 0;
 
                 for (const condition of conditions) {
-                        const fieldValue = participantData[condition.conditionField];
+                        const fieldValue = participantData[condition.conditionField as keyof EligibilityParams];
 
                         if (fieldValue === undefined) continue;
 
@@ -150,6 +161,56 @@ export async function calculateBenefitAmount(
         } catch (error) {
                 console.error('Error calculating benefit amount:', error);
                 throw new Error('Failed to calculate benefit amount');
+        }
+}
+
+export async function getEligiblePrograms(params: EligibilityParams): Promise<Programs[]> {
+        try {
+                // Convert string values to appropriate types for comparison
+                const numericParams = {
+                        age: parseInt(params.age),
+                        numberOfDependents: parseInt(params.numberOfDependents),
+                        householdSize: parseInt(params.householdSize),
+                };
+
+                const allPrograms = await db.select().from(programs);
+
+                // Filter programs based on eligibility criteria
+                const eligiblePrograms = allPrograms.filter(program => {
+                        // Age check
+                        if (numericParams.age < program.ageMinimum || numericParams.age > program.ageMaximum) {
+                                return false;
+                        }
+
+                        // Gender check (4 represents "All")
+                        if (program.gender !== '4' && params.gender !== program.gender) {
+                                return false;
+                        }
+
+                        // Household size check
+                        if (numericParams.householdSize < program.householdSize) {
+                                return false;
+                        }
+
+                        // Country check
+                        if (params.countryOfResidence !== program.programCountry) {
+                                return false;
+                        }
+
+                        // Citizenship check (if required)
+                        if (program.citizenshipRequired && params.countryOfOrigin !== '1') {
+                                return false;
+                        }
+
+                        // Additional checks can be added here based on other criteria
+
+                        return true;
+                });
+
+                return eligiblePrograms;
+        } catch (error) {
+                console.error('Error getting eligible programs:', error);
+                throw new Error('Failed to get eligible programs');
         }
 }
 

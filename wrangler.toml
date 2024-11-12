@@ -8,3 +8,4 @@ binding = "DATABASE"
 database_name = "social-protection-calculator-db"
 database_id = "b8537e66-55e0-4a56-a831-479a30eda038"
 preview_database_id = "DATABASE" 
+NODE_VERSION = 18.18.0

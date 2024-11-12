@@ -1,32 +1,9 @@
 'use server'
 
-import { programs, benefitConditions } from './schema';
+import { programs, benefitConditions, ProgramSchema, type Program, type ProgramSelect, type EligibilityParams, type BenefitCondition } from './schema';
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from './db';
-
-// Zod schemas for validation
-const ProgramSchema = z.object({
-        id: z.number(),
-        programTitle: z.string(),
-        responsibleOrganization: z.string(),
-        programDescription: z.string(),
-        ageMinimum: z.number(),
-        ageMaximum: z.number(),
-        gender: z.string(),
-        numberOfDependents: z.number(),
-        typeOfDependents: z.string(),
-        employmentStatus: z.string(),
-        disabilityStatus: z.string(),
-        chronicIllnessStatus: z.string(),
-        householdSize: z.number(),
-        programCountry: z.string(),
-        citizenshipRequired: z.number(),
-        cashTransfer: z.number(),
-        cashTransferMonthlyAmount: z.number().nullable(),
-        inKindTransfer: z.number(),
-        inKindDollarValueAmt: z.number().nullable(),
-});
 
 const BenefitConditionInputSchema = z.object({
         benefitType: z.enum(['cash', 'in-kind']),
@@ -36,36 +13,10 @@ const BenefitConditionInputSchema = z.object({
         benefitAmount: z.number()
 });
 
-// Define the EligibilityParams interface
-export interface EligibilityParams {
-        age: string;
-        gender: string;
-        numberOfDependents: string;
-        typeOfDependents: string;
-        employmentStatus: string;
-        disabilityStatus: string;
-        chronicIllnessStatus: string;
-        householdSize: string;
-        countryOfOrigin: string;
-        countryOfResidence: string;
-}
-
-// Types
-export type Program = typeof programs.$inferInsert;
-export type Programs = typeof programs.$inferSelect;
-
-export interface BenefitConditionInput {
-        benefitType: 'cash' | 'in-kind';
-        conditionField: string;
-        conditionOperator: '>' | '<' | '>=' | '<=' | '===' | '!==';
-        conditionValue: string;
-        benefitAmount: number;
-}
-
 // Helper function to evaluate conditions
 function evaluateCondition(
         fieldValue: any,
-        operator: string,
+        operator: '>' | '<' | '>=' | '<=' | '===' | '!==',
         conditionValue: any
 ): boolean {
         const numericFieldValue = parseFloat(fieldValue);
@@ -85,7 +36,7 @@ function evaluateCondition(
                 case '<':
                         return fieldValue < conditionValue;
                 case '>=':
-                        return fieldValue >= conditionValue;
+                        return fieldValue >= conditionValue; // This line had the error
                 case '<=':
                         return fieldValue <= conditionValue;
                 case '===':
@@ -97,10 +48,9 @@ function evaluateCondition(
         }
 }
 
-// Main functions
 export async function addProgram(
         programData: Program,
-        benefitConditionsData: BenefitConditionInput[]
+        benefitConditionsData: BenefitCondition[]
 ): Promise<void> {
         try {
                 const validatedProgram = ProgramSchema.parse(programData);
@@ -149,7 +99,7 @@ export async function calculateBenefitAmount(
 
                         if (evaluateCondition(
                                 fieldValue,
-                                condition.conditionOperator,
+                                condition.conditionOperator as '>' | '<' | '>=' | '<=' | '===' | '!==',
                                 condition.conditionValue
                         )) {
                                 benefitAmount = condition.benefitAmount;
@@ -164,7 +114,7 @@ export async function calculateBenefitAmount(
         }
 }
 
-export async function getEligiblePrograms(params: EligibilityParams): Promise<Programs[]> {
+export async function getEligiblePrograms(params: EligibilityParams): Promise<ProgramSelect[]> {
         try {
                 // Convert string values to appropriate types for comparison
                 const numericParams = {
@@ -197,12 +147,24 @@ export async function getEligiblePrograms(params: EligibilityParams): Promise<Pr
                                 return false;
                         }
 
-                        // Citizenship check (if required)
-                        if (program.citizenshipRequired && params.countryOfOrigin !== '1') {
+                        // Citizenship check
+                        if (program.citizenshipRequired === 1 && params.countryOfOrigin !== program.programCountry) {
                                 return false;
                         }
 
-                        // Additional checks can be added here based on other criteria
+                        // Employment status check
+                        if (program.employmentStatus !== '5' && params.employmentStatus !== program.employmentStatus) {
+                                return false;
+                        }
+
+                        // Additional checks for disability and chronic illness status
+                        if (program.disabilityStatus !== '4' && params.disabilityStatus !== program.disabilityStatus) {
+                                return false;
+                        }
+
+                        if (program.chronicIllnessStatus !== '4' && params.chronicIllnessStatus !== program.chronicIllnessStatus) {
+                                return false;
+                        }
 
                         return true;
                 });
@@ -214,7 +176,7 @@ export async function getEligiblePrograms(params: EligibilityParams): Promise<Pr
         }
 }
 
-export async function getProgramById(programId: number): Promise<Program | null> {
+export async function getProgramById(programId: number): Promise<ProgramSelect | null> {
         try {
                 const program = await db
                         .select()
@@ -229,7 +191,7 @@ export async function getProgramById(programId: number): Promise<Program | null>
         }
 }
 
-export async function listPrograms(): Promise<Programs[]> {
+export async function listPrograms(): Promise<ProgramSelect[]> {
         try {
                 const allPrograms = await db.select().from(programs);
                 return allPrograms.map(program =>

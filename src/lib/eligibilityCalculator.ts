@@ -1,6 +1,28 @@
-import { Beneficiary, Programs } from "./types";
+import { programs, benefitConditions, type ProgramSelect, type BenefitConditionSelect } from './schema';
 
-export function calculateEligibility(beneficiary: Beneficiary, program: Programs): {
+// Define the Beneficiary type based on your eligibility parameters
+interface Beneficiary {
+        age: number;
+        gender: string;
+        numberOfDependents: number;
+        typeOfDependents: string;
+        employmentStatus: string;
+        disabilityStatus: string;
+        chronicIllnessStatus: string;
+        householdSize: number;
+        countryOfOrigin: string;
+        countryOfResidence: string;
+}
+
+// Define a type that combines Program with its conditions
+interface ProgramWithConditions extends ProgramSelect {
+        benefitConditions: BenefitConditionSelect[];
+}
+
+export function calculateEligibility(
+        beneficiary: Beneficiary,
+        program: ProgramWithConditions
+): {
         isEligible: boolean;
         reasons?: string[];
         potentialBenefits?: {
@@ -28,7 +50,7 @@ export function calculateEligibility(beneficiary: Beneficiary, program: Programs
                 reasons.push('Household size requirements not met');
         }
 
-        if (program.citizenshipRequired && beneficiary.countryOfOrigin !== '1') {
+        if (program.citizenshipRequired === 1 && beneficiary.countryOfOrigin !== program.programCountry) {
                 isEligible = false;
                 reasons.push('Citizenship requirement not met');
         }
@@ -36,6 +58,22 @@ export function calculateEligibility(beneficiary: Beneficiary, program: Programs
         if (beneficiary.countryOfResidence !== program.programCountry) {
                 isEligible = false;
                 reasons.push('Country of residence requirement not met');
+        }
+
+        // Additional eligibility checks
+        if (program.employmentStatus !== '5' && beneficiary.employmentStatus !== program.employmentStatus) {
+                isEligible = false;
+                reasons.push('Employment status requirements not met');
+        }
+
+        if (program.disabilityStatus !== '4' && beneficiary.disabilityStatus !== program.disabilityStatus) {
+                isEligible = false;
+                reasons.push('Disability status requirements not met');
+        }
+
+        if (program.chronicIllnessStatus !== '4' && beneficiary.chronicIllnessStatus !== program.chronicIllnessStatus) {
+                isEligible = false;
+                reasons.push('Chronic illness status requirements not met');
         }
 
         // Calculate potential benefits if eligible
@@ -47,20 +85,20 @@ export function calculateEligibility(beneficiary: Beneficiary, program: Programs
                 };
 
                 // Add base benefits
-                if (program.cashTransfer && program.cashTransferMonthlyAmount) {
+                if (program.cashTransfer === 1 && program.cashTransferMonthlyAmount) {
                         benefits.cashBenefits += program.cashTransferMonthlyAmount;
                 }
 
-                if (program.inKindTransfer && program.inKindDollarValueAmt) {
+                if (program.inKindTransfer === 1 && program.inKindDollarValueAmt) {
                         benefits.inKindBenefits += program.inKindDollarValueAmt;
                 }
 
                 // Calculate additional benefits based on conditions
-                program.benefitConditions.forEach(condition => {
+                program.benefitConditions.forEach((condition: BenefitConditionSelect) => {
                         const beneficiaryValue = beneficiary[condition.conditionField as keyof Beneficiary];
                         const meetsCondition = evaluateCondition(
                                 beneficiaryValue,
-                                condition.conditionOperator,
+                                condition.conditionOperator as '>' | '<' | '>=' | '<=' | '===' | '!==',
                                 condition.conditionValue
                         );
 
@@ -85,6 +123,14 @@ function evaluateCondition(
         operator: '>' | '<' | '>=' | '<=' | '===' | '!==',
         compareValue: string | number
 ): boolean {
+        const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+        const numericCompareValue = typeof compareValue === 'string' ? parseFloat(compareValue) : compareValue;
+
+        if (!isNaN(numericValue) && !isNaN(numericCompareValue)) {
+                value = numericValue;
+                compareValue = numericCompareValue;
+        }
+
         switch (operator) {
                 case '>':
                         return value > compareValue;

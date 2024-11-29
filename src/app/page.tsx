@@ -9,7 +9,7 @@ import {
 import { ExternalLink, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import HeroSection from "@/components/HeroCalculator"
-import { BenefitsQueryFormUpdate } from "@/components/forms/BenefitsQueryMigrate"
+import { BenefitsQueryForm } from "@/components/forms/BenefitsQuery"
 
 export const runtime = 'edge'
 const sponsors = [
@@ -65,7 +65,7 @@ export default function Home() {
                                                 <CardDescription>Enter demographic information to calculate potential benefits.</CardDescription>
                                         </CardHeader>
                                         <CardContent>
-                                                <BenefitsQueryFormUpdate />
+                                                <BenefitsQueryForm />
                                         </CardContent>
                                 </Card>
 

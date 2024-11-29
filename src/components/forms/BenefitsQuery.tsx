@@ -1,308 +1,235 @@
-"use client"
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import {
-        Form,
-        FormControl,
-        FormDescription,
-        FormField,
-        FormItem,
-        FormLabel,
-        FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import {
-        Select,
-        SelectContent,
-        SelectItem,
-        SelectTrigger,
-        SelectValue,
-} from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import type { FormSubmissionData } from '@/lib/types/forms';
+import { formSchema } from '@/lib/types/forms';
+import type { ProcessedProgramResponse, BenefitsGapResult } from '@/lib/actions';
+import BasicInformationStep from './steps/BasicInformationStep';
+import HouseholdInformationStep from './steps/HouseholdInformationStep';
+import HealthStatusStep from './steps/HealthStatusStep';
+import EmploymentInformationStep from './steps/EmploymentInformationStep';
+import DocumentationStep from './steps/DocumentationStep';
+import PreferencesStep from './steps/PreferencesStep';
 
-const formSchema = z.object({
-        age: z.string().min(1, { message: "Age must be more than zero" }),
-        gender: z.string().min(1, { message: "Gender must be selected" }),
-        numberOfDependents: z.string().min(0, { message: "Number of dependents must be entered" }),
-        typeOfDependents: z.string().min(1, { message: "Type of dependents must be selected" }),
-        employmentStatus: z.string().min(1, { message: "Employment status must be selected" }),
-        disabilityStatus: z.string().min(1, { message: "Disability status must be selected" }),
-        chronicIllnessStatus: z.string().min(1, { message: "Chronic illness status must be selected" }),
-        householdSize: z.string().min(1, { message: "Household size must be entered" }),
-        countryOfOrigin: z.string().min(1, { message: "Country of origin must be selected" }),
-        countryOfResidence: z.string().min(1, { message: "Country of residence must be selected" }),
-}).refine((data) => {
-        const dependents = parseInt(data.numberOfDependents);
-        const householdSize = parseInt(data.householdSize);
-        return !isNaN(dependents) && !isNaN(householdSize) && householdSize >= dependents;
-}, {
-        message: "Household size must be greater than or equal to the number of dependents",
-        path: ["householdSize"],
-});
+interface FormState {
+        isSubmitting: boolean;
+        error: string | null;
+        results: {
+                eligiblePrograms: ProcessedProgramResponse[];
+                benefitsGap: BenefitsGapResult;
+        } | null;
+}
 
 export function BenefitsQueryForm() {
-        const form = useForm<z.infer<typeof formSchema>>({
+        const [currentStep, setCurrentStep] = useState(0);
+        const [formState, setFormState] = useState<FormState>({
+                isSubmitting: false,
+                error: null,
+                results: null,
+        });
+        const router = useRouter();
+
+        const form = useForm<FormSubmissionData>({
                 resolver: zodResolver(formSchema),
                 defaultValues: {
-                        age: "1",
-                        numberOfDependents: "0",
-                        householdSize: "1",
+                        basic: {
+                                age: '30',
+                                gender: '1',
+                                countryOfResidence: '1',
+                                countryOfOrigin: '',
+                        },
+                        household: {
+                                householdSize: '2',
+                                numberOfDependents: '0',
+                                typeOfDependents: '',
+                                monthlyIncome: '0',
+                                primaryIncomeName: '',
+                                primaryIncomeRelation: '',
+                        },
+                        health: {
+                                disabilityStatus: '1',
+                                chronicIllnessStatus: '1',
+                                disabilityType: '',
+                                medicalDocumentation: false,
+                                requiresContinuousCare: false,
+                                registeredDisability: false,
+                        },
+                        employment: {
+                                employmentStatus: '1',
+                                employmentSector: '',
+                                employmentType: '',
+                                socialSecurityNumber: '',
+                                monthsEmployed: '0',
+                                seasonalWork: false,
+                                employmentHistory: {
+                                        lastEmployed: '',
+                                        reasonForUnemployment: '',
+                                        seekingWork: false,
+                                },
+                        },
+                        documentation: {
+                                hasValidID: false,
+                                hasProofOfResidence: false,
+                                hasIncomeDocuments: false,
+                                hasSocialSecurityCard: false,
+                                hasBankAccount: false,
+                                hasUtilityBills: false,
+                                hasPropertyDocuments: false,
+                        },
+                        preferences: {
+                                includeInKindBenefits: true,
+                                includeCashTransfers: true,
+                                includeEmergencyAssistance: false,
+                                preferredPaymentMethod: '',
+                                languagePreference: '',
+                                communicationPreference: '',
+                        },
                 },
-        })
-        const router = useRouter()
+        });
 
-        function onSubmit(values: z.infer<typeof formSchema>) {
-                router.push(`/benefit-displayer?${new URLSearchParams(values as Record<string, string>).toString()}`)
-        }
+        const steps = [
+                { id: 'basic', title: 'Basic Information', component: BasicInformationStep },
+                { id: 'household', title: 'Household Information', component: HouseholdInformationStep },
+                { id: 'health', title: 'Health Status', component: HealthStatusStep },
+                { id: 'employment', title: 'Employment', component: EmploymentInformationStep },
+                { id: 'documentation', title: 'Documentation', component: DocumentationStep },
+                { id: 'preferences', title: 'Preferences', component: PreferencesStep },
+        ];
 
+
+        // Synchronous step navigation
+        const handleStepCompletion = (direction: 'next' | 'previous') => {
+                if (direction === 'previous') {
+                        setCurrentStep(prev => Math.max(0, prev - 1));
+                        return;
+                }
+
+                const currentStepId = steps[currentStep].id;
+                const stepFields = [currentStepId] as const;
+
+                // Synchronous validation
+                const isStepValid = Object.keys(form.formState.errors).every(
+                        key => !stepFields.includes(key as typeof stepFields[number])
+                );
+
+                if (isStepValid && currentStep < steps.length - 1) {
+                        setCurrentStep(prev => prev + 1);
+                }
+        };
+        const onSubmit = (data: FormSubmissionData) => {
+                // Use the spread operator to maintain existing state
+                setFormState(prev => ({
+                        ...prev,  // Keep existing state
+                        isSubmitting: true,
+                        error: null,
+                        // results stays unchanged from previous state
+                }));
+
+                try {
+                        const params = new URLSearchParams();
+
+                        Object.entries(data).forEach(([section, sectionData]) => {
+                                Object.entries(sectionData).forEach(([key, value]) => {
+                                        if (typeof value === 'object') {
+                                                Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+                                                        params.append(
+                                                                `${section}.${key}.${nestedKey}`,
+                                                                String(nestedValue)
+                                                        );
+                                                });
+                                        } else {
+                                                params.append(`${section}.${key}`, String(value));
+                                        }
+                                });
+                        });
+
+                        router.push(`/benefit-displayer?${params.toString()}`);
+                } catch (error) {
+                        // Again, maintain existing state when setting error
+                        setFormState(prev => ({
+                                ...prev,
+                                isSubmitting: false,
+                                error: error instanceof Error ? error.message : 'An error occurred',
+                                // results stays unchanged
+                        }));
+                }
+        };
+
+        // Render form
         return (
-                <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                                <Card>
-                                        <CardHeader>
-                                                <CardTitle>Beneficiary Information</CardTitle>
-                                                <CardDescription>Enter the details of the potential beneficiary to calculate possible benefits.</CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="grid gap-6">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="age"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Age</FormLabel>
-                                                                                <FormControl>
-                                                                                        <Input type="number" placeholder="Enter age" {...field} />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="gender"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Gender</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select gender" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">Male</SelectItem>
-                                                                                                <SelectItem value="2">Female</SelectItem>
-                                                                                                <SelectItem value="3">Other</SelectItem>
-                                                                                                <SelectItem value="4">Prefer not to say</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                </div>
+                <FormProvider {...form}>
+                        <div className="max-w-2xl mx-auto space-y-6">
+                                <Card className="p-6">
+                                        <Progress
+                                                value={(currentStep / (steps.length - 1)) * 100}
+                                                className="mb-4"
+                                        />
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="numberOfDependents"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Number of Dependents</FormLabel>
-                                                                                <FormControl>
-                                                                                        <Input
-                                                                                                type="number"
-                                                                                                placeholder="Enter number"
-                                                                                                {...field}
-                                                                                                onChange={(e) => {
-                                                                                                        field.onChange(e);
-                                                                                                        const dependents = parseInt(e.target.value);
-                                                                                                        const householdSize = parseInt(form.getValues("householdSize"));
-                                                                                                        if (!isNaN(dependents) && !isNaN(householdSize) && dependents > householdSize) {
-                                                                                                                form.setValue("householdSize", (dependents + 1).toString());
-                                                                                                        }
-                                                                                                }}
-                                                                                        />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="typeOfDependents"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Type of Dependents</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select type" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">Children</SelectItem>
-                                                                                                <SelectItem value="2">Elderly</SelectItem>
-                                                                                                <SelectItem value="3">Mixed</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                </div>
+                                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                                {formState.error && (
+                                                        <Alert variant="destructive">
+                                                                <AlertDescription>{formState.error}</AlertDescription>
+                                                        </Alert>
+                                                )}
 
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="employmentStatus"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Employment Status</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select status" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">Unemployed</SelectItem>
-                                                                                                <SelectItem value="2">Seasonally Employed</SelectItem>
-                                                                                                <SelectItem value="3">Permanently Employed</SelectItem>
-                                                                                                <SelectItem value="4">Self Employed</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="disabilityStatus"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Disability Status</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select status" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">None</SelectItem>
-                                                                                                <SelectItem value="2">Moderate</SelectItem>
-                                                                                                <SelectItem value="3">Severe</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="chronicIllnessStatus"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Chronic Illness Status</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select status" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">None</SelectItem>
-                                                                                                <SelectItem value="2">Moderate</SelectItem>
-                                                                                                <SelectItem value="3">Severe</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                </div>
+                                                {/* Current step component */}
+                                                {(() => {
+                                                        const StepComponent = steps[currentStep].component;
+                                                        return <StepComponent />;
+                                                })()}
 
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="householdSize"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Household Size</FormLabel>
-                                                                                <FormControl>
-                                                                                        <Input
-                                                                                                type="number"
-                                                                                                placeholder="Enter size"
-                                                                                                {...field}
-                                                                                                onChange={(e) => {
-                                                                                                        field.onChange(e);
-                                                                                                        const householdSize = parseInt(e.target.value);
-                                                                                                        const dependents = parseInt(form.getValues("numberOfDependents"));
-                                                                                                        if (!isNaN(dependents) && !isNaN(householdSize) && householdSize < dependents) {
-                                                                                                                form.setValue("numberOfDependents", e.target.value);
-                                                                                                        }
-                                                                                                }}
-                                                                                        />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                        </FormItem>
+                                                {/* Navigation buttons */}
+                                                <div className="flex justify-between mt-6">
+                                                        <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={() => handleStepCompletion('previous')}
+                                                                disabled={currentStep === 0 || formState.isSubmitting}
+                                                        >
+                                                                Previous
+                                                        </Button>
+
+                                                        <Button
+                                                                type="button"  // Always 'button' to prevent unintended form submissions
+                                                                onClick={() => {
+                                                                        if (currentStep < steps.length - 1) {
+                                                                                handleStepCompletion('next');
+                                                                        } else {
+                                                                                form.handleSubmit(onSubmit)();  // Manually submit the form
+                                                                        }
+                                                                }}
+                                                                disabled={formState.isSubmitting}
+                                                        >
+                                                                {formState.isSubmitting ? (
+                                                                        <>
+                                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                                Processing
+                                                                        </>
+                                                                ) : currentStep === steps.length - 1 ? (
+                                                                        'Submit Application'
+                                                                ) : (
+                                                                        'Next'
                                                                 )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="countryOfOrigin"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Country of Origin</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select country" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">Local</SelectItem>
-                                                                                                <SelectItem value="2">Foreign</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
-                                                        <FormField
-                                                                control={form.control}
-                                                                name="countryOfResidence"
-                                                                render={({ field }) => (
-                                                                        <FormItem>
-                                                                                <FormLabel>Country of Residence</FormLabel>
-                                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                        <FormControl>
-                                                                                                <SelectTrigger>
-                                                                                                        <SelectValue placeholder="Select country" />
-                                                                                                </SelectTrigger>
-                                                                                        </FormControl>
-                                                                                        <SelectContent>
-                                                                                                <SelectItem value="1">Dominica</SelectItem>
-                                                                                                <SelectItem value="2">Grenada</SelectItem>
-                                                                                                <SelectItem value="3">Jamaica</SelectItem>
-                                                                                                <SelectItem value="4">Saint Lucia</SelectItem>
-                                                                                                <SelectItem value="5">Trinidad and Tobago</SelectItem>
-                                                                                        </SelectContent>
-                                                                                </Select>
-                                                                                <FormMessage />
-                                                                        </FormItem>
-                                                                )}
-                                                        />
+                                                        </Button>
                                                 </div>
-                                        </CardContent>
+                                        </form>
                                 </Card>
-                                <Button type="submit" className="w-full">Calculate Benefits</Button>
-                        </form>
-                </Form>
-        )
+
+                                {/* Step counter */}
+                                {currentStep > 0 && (
+                                        <div className="text-sm text-muted-foreground text-center">
+                                                Step {currentStep + 1} of {steps.length}
+                                        </div>
+                                )}
+                        </div>
+                </FormProvider>
+        );
 }

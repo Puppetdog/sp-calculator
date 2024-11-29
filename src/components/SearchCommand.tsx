@@ -34,7 +34,6 @@ export function SearchCommand() {
 
         const staticPages = [
                 { name: "Home", href: "/" },
-                { name: "Add Programs", href: "/add-programs" },
                 { name: "Programs", href: "/programs" },
         ]
 

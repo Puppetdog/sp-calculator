@@ -77,8 +77,8 @@ INSERT INTO eligibility_rules (
 (
     (SELECT id FROM programs WHERE code = 'TT-DAG-2024'),
     'disability_status',
-    '===',
-    'true',
+    '>',
+    '1',
     1,
     1,
     'Applicant must have a diagnosed disability',

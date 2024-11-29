@@ -76,7 +76,6 @@ export const getEligiblePrograms = cache(async (formData: FormSubmissionData): P
         // Transform form data to eligibility params
         const params = transformFormData(formData);
         // Log transformed params for debugging
-        console.log('Transformed params:', params);
 
 
         try {
@@ -191,14 +190,11 @@ export async function calculateBenefitAmount(programId: number, params: Eligibil
                 }
 
                 function evaluateBenefitRule(rule: ProgramWithBenefits['benefitRules'][number], params: EligibilityParams): boolean {
-                        console.log('rule:', rule);
-                        console.log('parameters', params);
 
                         // Convert snake_case to camelCase
                         const camelKey = snakeToCamel(rule.conditionType) as keyof EligibilityParams;
                         const paramValue = params[camelKey];
 
-                        console.log('paramValue:', paramValue);
 
                         if (typeof paramValue !== 'string') return false;
 

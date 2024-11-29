@@ -1,8 +1,8 @@
 import { calculateBenefitsGap, getEligiblePrograms } from "@/lib/actions"; const sampleFormData = {
         basic: {
-                age: "65",
+                age: "15",
                 gender: "1",
-                countryOfResidence: "DM",
+                countryOfResidence: "LC",
         },
         household: {
                 householdSize: "5",
@@ -30,6 +30,5 @@ import { calculateBenefitsGap, getEligiblePrograms } from "@/lib/actions"; const
 export default async function test() {
         const programs = await getEligiblePrograms(sampleFormData)
         const benefits = await calculateBenefitsGap(sampleFormData)
-        console.log(programs)
-        return (<div>{JSON.stringify(benefits)}</div>)
+        return (<div>{JSON.stringify(benefits) && JSON.stringify(programs)}</div>)
 }

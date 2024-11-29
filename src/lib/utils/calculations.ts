@@ -11,6 +11,7 @@ import type { EligibilityParams } from '@/lib/types/eligibility';
 const numericRuleTypes: Set<string> = new Set([
         'age',
         'income',
+        'disability_status',
         'monthly_income',
         'contributions',
         'contributions_weeks',
@@ -63,7 +64,7 @@ export function calculateEligibilityScore(
  */
 function groupRulesByLogicGroup(rules: EligibilityRule[]): Record<number, EligibilityRule[]> {
         return rules.reduce((groups, rule) => {
-                const group = rule.logic_group || 0; // Default to group 0 if not specified
+                const group = rule.logicGroup || 0; // Default to group 0 if not specified
                 if (!groups[group]) groups[group] = [];
                 groups[group].push(rule);
                 return groups;
@@ -126,6 +127,8 @@ function getParamValue(ruleType: string, params: EligibilityParams): string | un
 
                 case 'age':
                         return params.age;
+                case 'disability_status':
+                        return params.disabilityStatus;
 
                 case 'contributions':
                         return params.contributionsWeeks;
@@ -154,7 +157,7 @@ function getParamValue(ruleType: string, params: EligibilityParams): string | un
                         }
 
                         // If ruleType does not match any EligibilityParams field
-                        console.warn(`Unrecognized rule_type: ${ruleType}`);
+                        console.warn(`Unrecognized ruleType: ${ruleType}`);
                         return undefined;
         }
 }
@@ -167,20 +170,19 @@ function getParamValue(ruleType: string, params: EligibilityParams): string | un
  * @returns True if the rule is satisfied, otherwise false.
  */
 export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): boolean {
-        const paramValue = getParamValue(rule.rule_type, params);
+        const paramValue = getParamValue(rule.ruleType, params);
         if (paramValue === undefined) {
-                console.warn(`No parameter value found for rule_type: ${rule.rule_type}`);
+                console.warn(`No parameter value found for ruleType: ${rule.ruleType}`);
                 return false;
         }
 
-        console.log(`Evaluating rule ${rule.rule_type}:`, {
+        console.log(`Evaluating rule ${rule.ruleType}:`, {
                 paramValue,
                 operator: rule.operator,
                 ruleValue: rule.value
         });
-
         try {
-                if (numericRuleTypes.has(rule.rule_type)) {
+                if (numericRuleTypes.has(rule.ruleType)) {
                         // Perform numeric comparison
                         return evaluateNumericRule(rule.operator as '>' | '<' | '>=' | '<=', paramValue, rule.value);
                 } else {
@@ -188,7 +190,7 @@ export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): 
                         return evaluateStringRule(rule.operator as '===', paramValue, rule.value);
                 }
         } catch (error) {
-                console.error(`Error evaluating rule: ${rule.rule_type}`, error);
+                console.error(`Error evaluating rule: ${rule.ruleType}`, error);
                 return false;
         }
 }
@@ -288,7 +290,7 @@ export function checkGeographicEligibility(
         // Check for national coverage first
         const nationalCoverage = coverage.find(c =>
                 c.region.toLowerCase() === 'national' &&
-                c.coverage_type === 'full'
+                c.coverageType === 'full'
         );
         if (nationalCoverage) return true;
 
@@ -298,6 +300,6 @@ export function checkGeographicEligibility(
         );
         if (!regionCoverage) return false;
 
-        return regionCoverage.coverage_type === 'full' ||
-                (regionCoverage.coverage_type === 'partial' && !regionCoverage.special_requirements);
+        return regionCoverage.coverageType === 'full' ||
+                (regionCoverage.coverageType === 'partial' && !regionCoverage.specialRequirements);
 }

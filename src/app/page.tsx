@@ -1,4 +1,3 @@
-import { BenefitsQueryForm } from "@/components/forms/BenefitsQuery"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -9,6 +8,8 @@ import {
 } from "@/components/ui/tooltip"
 import { ExternalLink, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
+import HeroSection from "@/components/HeroCalculator"
+import { BenefitsQueryFormUpdate } from "@/components/forms/BenefitsQueryMigrate"
 
 export const runtime = 'edge'
 const sponsors = [
@@ -54,29 +55,20 @@ const sponsors = [
 ]
 export default function Home() {
         return (
-                <main className="flex min-h-screen flex-col bg-gradient-to-b from-background to-secondary/20">
+                <main className="flex flex-col min-h-screen bg-gradient-to-b from-background to-secondary/20 m-0 p-0">
+                        <HeroSection />
                         <div className="flex-1 p-24">
-                                <div className="max-w-5xl w-full mx-auto space-y-12 [background-size:59px_60px] bg-[radial-gradient(circle,_#000000_1px,_rgba(0,0,0,0)_1px)]">
-                                        <section className="flex flex-col gap-10 items-center justify-between">
-                                                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                                                        Social Protection Calculator
-                                                </h1>
-                                                <p className="text-xl text-muted-foreground max-w-[700px] mx-auto">
-                                                        Predict possible benefits for your target demographic and find gaps in minimum subsistence benefits.
-                                                </p>
-                                        </section>
 
-                                        <Card className="w-full">
-                                                <CardHeader>
-                                                        <CardTitle>Estimate Benefits</CardTitle>
-                                                        <CardDescription>Enter demographic information to calculate potential benefits.</CardDescription>
-                                                </CardHeader>
-                                                <CardContent>
-                                                        <BenefitsQueryForm />
-                                                </CardContent>
-                                        </Card>
+                                <Card className="w-full">
+                                        <CardHeader>
+                                                <CardTitle>Estimate Benefits</CardTitle>
+                                                <CardDescription>Enter demographic information to calculate potential benefits.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                <BenefitsQueryFormUpdate />
+                                        </CardContent>
+                                </Card>
 
-                                </div>
                         </div>
 
                         {/* Sponsor Footer */}
@@ -185,6 +177,6 @@ export default function Home() {
                                         </div>
                                 </div>
                         </footer>
-                </main>
+                </main >
         )
 }

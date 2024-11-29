@@ -1,100 +1,181 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-import { z } from 'zod';
+import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core';
+import { relations } from 'drizzle-orm';
 
-// Define the allowed values as const arrays
-export const GENDER_VALUES = ['1', '2', '3', '4'] as const; // 1: Male, 2: Female, 3: Other, 4: All
-export const TYPE_OF_DEPENDENTS_VALUES = ['1', '2', '3', '4'] as const; // Define your values
-export const EMPLOYMENT_STATUS_VALUES = ['1', '2', '3', '4', '5'] as const;
-export const DISABILITY_STATUS_VALUES = ['1', '2', '3', '4'] as const;
-export const CHRONIC_ILLNESS_VALUES = ['1', '2', '3', '4'] as const;
-export const COUNTRY_VALUES = ['1', '2', '3', '4', '5'] as const;
-
-// Type definitions for the enum-like values
-export type Gender = typeof GENDER_VALUES[number];
-export type TypeOfDependents = typeof TYPE_OF_DEPENDENTS_VALUES[number];
-export type EmploymentStatus = typeof EMPLOYMENT_STATUS_VALUES[number];
-export type DisabilityStatus = typeof DISABILITY_STATUS_VALUES[number];
-export type ChronicIllnessStatus = typeof CHRONIC_ILLNESS_VALUES[number];
-export type CountryCode = typeof COUNTRY_VALUES[number];
-
+// Programs Table
 export const programs = sqliteTable('programs', {
         id: integer('id').primaryKey(),
-        // General Information
-        programTitle: text('program_title').notNull(),
+        code: text('code').notNull().unique(),
+        title: text('program_title').notNull(),
+        description: text('description').notNull(),
+        countryCode: text('country_code').notNull(),
+        category: text('category').notNull(), // pension, disability, education, etc
+        type: text('type').notNull(), // cash, in-kind, service
         responsibleOrganization: text('responsible_organization').notNull(),
-        programDescription: text('program_description').notNull(),
-        // Eligibility Criteria
-        ageMinimum: integer('age_minimum').notNull(),
-        ageMaximum: integer('age_maximum').notNull(),
-        gender: text('gender', { enum: GENDER_VALUES }).notNull(),
-        numberOfDependents: integer('number_of_dependents').notNull(),
-        typeOfDependents: text('type_of_dependents', { enum: TYPE_OF_DEPENDENTS_VALUES }).notNull(),
-        employmentStatus: text('employment_status', { enum: EMPLOYMENT_STATUS_VALUES }).notNull(),
-        disabilityStatus: text('disability_status', { enum: DISABILITY_STATUS_VALUES }).notNull(),
-        chronicIllnessStatus: text('chronic_illness_status', { enum: CHRONIC_ILLNESS_VALUES }).notNull(),
-        householdSize: integer('household_size').notNull(),
-        programCountry: text('program_country', { enum: COUNTRY_VALUES }).notNull(),
-        citizenshipRequired: integer('citizenship_required').notNull(),
-        // Benefit Information
-        cashTransfer: integer('cash_transfer').notNull(),
-        cashTransferMonthlyAmount: integer('cash_transfer_monthly_amount'),
-        inKindTransfer: integer('in_kind_transfer').notNull(),
-        inKindDollarValueAmt: integer('in_kind_dollar_value_amt'),
+        minimumBenefit: real('minimum_benefit'),
+        maximumBenefit: real('maximum_benefit'),
+        benefitFrequency: text('benefit_frequency').notNull(), // monthly, one-time, annual
+        reapplicationPeriod: integer('reapplication_period'), // in months
+        active: integer('active').notNull().default(1),
+        createdAt: text('created_at').notNull(),
+        updatedAt: text('updated_at').notNull(),
 });
 
-export const benefitConditions = sqliteTable('benefit_conditions', {
+// Define relations for programs
+export const programsRelations = relations(programs, ({ many }) => ({
+        eligibilityRules: many(eligibilityRules),
+        benefitRules: many(benefitRules),
+        requiredDocuments: many(requiredDocuments),
+        geographicCoverage: many(geographicCoverage),
+        colaAdjustments: many(colaAdjustments),
+        programIncompatibilities: many(programIncompatibility),
+}));
+
+// Eligibility Rules Table
+export const eligibilityRules = sqliteTable('eligibility_rules', {
         id: integer('id').primaryKey(),
-        programId: integer('program_id')
-                .references(() => programs.id)
-                .notNull(),
-        benefitType: text('benefit_type', { enum: ['cash', 'in-kind'] }).notNull(),
-        conditionField: text('condition_field').notNull(),
-        conditionOperator: text('condition_operator', {
-                enum: ['>', '<', '>=', '<=', '===', '!==']
-        }).notNull(),
-        conditionValue: text('condition_value').notNull(),
-        benefitAmount: integer('benefit_amount').notNull(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        ruleType: text('rule_type').notNull(), // age, income, disability, residence
+        operator: text('operator').notNull(), // >, <, >=, <=, =, IN
+        value: text('value').notNull(),
+        logicGroup: integer('logic_group'), // for AND/OR grouping
+        priority: integer('priority'), // evaluation order
+        description: text('description'),
+        errorMessage: text('error_message'),
+        active: integer('active').notNull().default(1),
 });
 
-// Export interface for eligibility parameters that matches the form data
-export interface EligibilityParams {
-        age: string;
-        gender: Gender;
-        numberOfDependents: string;
-        typeOfDependents: TypeOfDependents;
-        employmentStatus: EmploymentStatus;
-        disabilityStatus: DisabilityStatus;
-        chronicIllnessStatus: ChronicIllnessStatus;
-        householdSize: string;
-        countryOfOrigin: CountryCode;
-        countryOfResidence: CountryCode;
-}
+// Define relations for eligibilityRules
+export const eligibilityRulesRelations = relations(eligibilityRules, ({ one }) => ({
+        program: one(programs, {
+                fields: [eligibilityRules.programId],
+                references: [programs.id],
+        }),
+}));
 
-// Zod schema for program validation
-export const ProgramSchema = z.object({
-        id: z.number(),
-        programTitle: z.string(),
-        responsibleOrganization: z.string(),
-        programDescription: z.string(),
-        ageMinimum: z.number(),
-        ageMaximum: z.number(),
-        gender: z.enum(GENDER_VALUES),
-        numberOfDependents: z.number(),
-        typeOfDependents: z.enum(TYPE_OF_DEPENDENTS_VALUES),
-        employmentStatus: z.enum(EMPLOYMENT_STATUS_VALUES),
-        disabilityStatus: z.enum(DISABILITY_STATUS_VALUES),
-        chronicIllnessStatus: z.enum(CHRONIC_ILLNESS_VALUES),
-        householdSize: z.number(),
-        programCountry: z.enum(COUNTRY_VALUES),
-        citizenshipRequired: z.number(),
-        cashTransfer: z.number(),
-        cashTransferMonthlyAmount: z.number().nullable(),
-        inKindTransfer: z.number(),
-        inKindDollarValueAmt: z.number().nullable(),
+// Benefit Rules Table
+export const benefitRules = sqliteTable('benefit_rules', {
+        id: integer('id').primaryKey(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        conditionType: text('condition_type').notNull(), // household_size, disability_level, etc
+        operator: text('operator').notNull(),
+        thresholdValue: text('threshold_value').notNull(),
+        benefitModifier: real('benefit_modifier').notNull(),
+        modifierType: text('modifier_type').notNull(), // multiply, add, subtract, set
+        priority: integer('priority'),
+        active: integer('active').notNull().default(1),
 });
 
-// Export the inferred types
-export type Program = typeof programs.$inferInsert;
-export type ProgramSelect = typeof programs.$inferSelect;
-export type BenefitCondition = typeof benefitConditions.$inferInsert;
-export type BenefitConditionSelect = typeof benefitConditions.$inferSelect;
+// Define relations for benefitRules
+export const benefitRulesRelations = relations(benefitRules, ({ one }) => ({
+        program: one(programs, {
+                fields: [benefitRules.programId],
+                references: [programs.id],
+        }),
+}));
+
+// Required Documents Table
+export const requiredDocuments = sqliteTable('required_documents', {
+        id: integer('id').primaryKey(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        documentType: text('document_type').notNull(),
+        description: text('description'),
+        isMandatory: integer('is_mandatory').notNull().default(1),
+        alternativesAllowed: integer('alternatives_allowed').notNull().default(0),
+        active: integer('active').notNull().default(1),
+});
+
+// Define relations for requiredDocuments
+export const requiredDocumentsRelations = relations(requiredDocuments, ({ one, many }) => ({
+        program: one(programs, {
+                fields: [requiredDocuments.programId],
+                references: [programs.id],
+        }),
+        alternatives: many(documentAlternatives),
+}));
+
+// Document Alternatives Table
+export const documentAlternatives = sqliteTable('document_alternatives', {
+        id: integer('id').primaryKey(),
+        requiredDocumentId: integer('required_document_id').references(() => requiredDocuments.id).notNull(),
+        alternativeType: text('alternative_type').notNull(),
+        description: text('description'),
+        validationProcess: text('validation_process'),
+});
+
+// Define relations for documentAlternatives
+export const documentAlternativesRelations = relations(documentAlternatives, ({ one }) => ({
+        requiredDocument: one(requiredDocuments, {
+                fields: [documentAlternatives.requiredDocumentId],
+                references: [requiredDocuments.id],
+        }),
+}));
+
+// Geographic Coverage Table
+export const geographicCoverage = sqliteTable('geographic_coverage', {
+        id: integer('id').primaryKey(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        region: text('region').notNull(),
+        coverageType: text('coverage_type').notNull(), // full, partial, excluded
+        specialRequirements: text('special_requirements'),
+        active: integer('active').notNull().default(1),
+});
+
+// Define relations for geographicCoverage
+export const geographicCoverageRelations = relations(geographicCoverage, ({ one }) => ({
+        program: one(programs, {
+                fields: [geographicCoverage.programId],
+                references: [programs.id],
+        }),
+}));
+
+// Program Incompatibility Table
+export const programIncompatibility = sqliteTable('program_incompatibility', {
+        id: integer('id').primaryKey(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        incompatibleProgramId: integer('incompatible_program_id').references(() => programs.id).notNull(),
+        reason: text('reason'),
+        allowsTransition: integer('allows_transition').notNull().default(0),
+        active: integer('active').notNull().default(1),
+});
+
+// Define relations for programIncompatibility
+export const programIncompatibilityRelations = relations(programIncompatibility, ({ one }) => ({
+        program: one(programs, {
+                fields: [programIncompatibility.programId],
+                references: [programs.id],
+        }),
+        incompatibleProgram: one(programs, {
+                fields: [programIncompatibility.incompatibleProgramId],
+                references: [programs.id],
+        }),
+}));
+
+// COLA Adjustments Table
+export const colaAdjustments = sqliteTable('cola_adjustments', {
+        id: integer('id').primaryKey(),
+        programId: integer('program_id').references(() => programs.id).notNull(),
+        year: integer('year').notNull(),
+        adjustmentRate: real('adjustment_rate').notNull(),
+        effectiveDate: text('effective_date').notNull(),
+        approvedBy: text('approved_by'),
+        active: integer('active').notNull().default(1),
+});
+
+// Define relations for colaAdjustments
+export const colaAdjustmentsRelations = relations(colaAdjustments, ({ one }) => ({
+        program: one(programs, {
+                fields: [colaAdjustments.programId],
+                references: [programs.id],
+        }),
+}));
+
+// MEB Values Table
+export const mebValues = sqliteTable('meb_values', {
+        id: integer('id').primaryKey(),
+        countryCode: text('country_code').notNull().unique(),
+        amount: real('amount').notNull(),
+        lastUpdated: text('last_updated').notNull(),
+        baseYear: integer('base_year').notNull(),
+});
+
+// No relations needed for mebValues

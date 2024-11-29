@@ -15,6 +15,13 @@
       "when": 1730156742867,
       "tag": "0001_graceful_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1732117750452,
+      "tag": "0002_fancy_mandroid",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 Permissions Size User    Date Modified Git Name
-drwxr-xr-x     - dalbert 28 Nov 12:00   -N .
+drwxr-xr-x     - dalbert 27 Nov 21:26   -N .
 .rw-r--r--   182 dalbert 28 Oct 19:38   -N ├── .env
 .rw-r--r--   146 dalbert 28 Oct 18:41   -- ├── .eslintrc.json
 .rw-r--r--   391 dalbert  8 Oct 23:16   -- ├── .gitignore
@@ -9,24 +9,23 @@ drwxr-xr-x     - dalbert 28 Oct 13:00   -N │       └── v3
 drwxr-xr-x     - dalbert 28 Oct 09:09   -- │           ├── cache
 drwxr-xr-x     - dalbert 28 Oct 23:11   -N │           ├── d1
 drwxr-xr-x     - dalbert 28 Oct 09:09   -- │           └── workflows
-.rw-r--r--  8.3k dalbert 27 Nov 21:26   -N ├── cat
+.rw-r--r--     0 dalbert 27 Nov 21:26   -N ├── cat
 .rw-r--r--   418 dalbert  8 Oct 23:22   -- ├── components.json
 .rw-r--r--  1.2k dalbert 17 Nov 22:25   -- ├── drizzle.config.ts
 .rw-r--r--   150 dalbert 17 Nov 22:20   -- ├── env.d.ts
 .rw-r--r--   135 dalbert 28 Oct 19:40   -- ├── globals.d.ts
-drwxr-xr-x     - dalbert 28 Nov 13:24   -N ├── migrations
+drwxr-xr-x     - dalbert 20 Nov 16:17   -N ├── migrations
 .rw-r--r--  1.1k dalbert  9 Oct 14:07   -- │   ├── 0000_clean_the_enforcers.sql
 .rw-r--r--  2.7k dalbert 28 Oct 19:05   -- │   ├── 0001_graceful_cyclops.sql
 .rw-r--r--  6.0k dalbert 20 Nov 16:17   -N │   ├── 0002_fancy_mandroid.sql
-drwxr-xr-x     - dalbert 20 Nov 11:49   -N │   ├── meta
-.rw-r--r--  6.2k dalbert  9 Oct 14:07   -- │   │   ├── 0000_snapshot.json
-.rw-r--r--  6.3k dalbert 28 Oct 19:05   -- │   │   ├── 0001_snapshot.json
-.rw-r--r--   19k dalbert 20 Nov 11:49   -N │   │   ├── 0002_snapshot.json
-.rw-r--r--   495 dalbert 20 Nov 11:49   -M │   │   └── _journal.json
-.rw-r--r--  5.2k dalbert 28 Nov 13:24   -N │   └── ttdatainsert.sql
+drwxr-xr-x     - dalbert 20 Nov 11:49   -N │   └── meta
+.rw-r--r--  6.2k dalbert  9 Oct 14:07   -- │       ├── 0000_snapshot.json
+.rw-r--r--  6.3k dalbert 28 Oct 19:05   -- │       ├── 0001_snapshot.json
+.rw-r--r--   19k dalbert 20 Nov 11:49   -N │       ├── 0002_snapshot.json
+.rw-r--r--   495 dalbert 20 Nov 11:49   -M │       └── _journal.json
 .rw-r--r--   247 dalbert 28 Oct 07:50   -- ├── next.config.mjs
-.rw-r--r--  2.5k dalbert 28 Nov 12:00   -M ├── package.json
-.rw-r--r--  329k dalbert 28 Nov 12:00   -M ├── pnpm-lock.yaml
+.rw-r--r--  2.4k dalbert 19 Nov 08:45   -M ├── package.json
+.rw-r--r--  313k dalbert 19 Nov 08:45   -M ├── pnpm-lock.yaml
 .rw-r--r--   135 dalbert  8 Oct 23:16   -- ├── postcss.config.mjs
 drwxr-xr-x     - dalbert 29 Oct 23:03   -- ├── public
 .rw-r--r--  8.4k dalbert 29 Oct 22:39   -- │   ├── caritas.jpg
@@ -37,44 +36,36 @@ drwxr-xr-x     - dalbert 29 Oct 23:03   -- ├── public
 .rw-r--r--  6.7k dalbert 20 Nov 11:36   -N ├── sp-calc-backup
 .rw-r--r--  6.7k dalbert 20 Nov 11:37   -N ├── sp-calc-backup.sql
 drwxr-xr-x     - dalbert 29 Oct 23:01   -N ├── src
-drwxr-xr-x     - dalbert 28 Nov 19:49   -N │   ├── app
+drwxr-xr-x     - dalbert 19 Nov 12:26   -M │   ├── app
 drwxr-xr-x     - dalbert 28 Oct 23:24   -- │   │   ├── add-programs
 .rw-r--r--  4.0k dalbert 28 Oct 23:24   -- │   │   │   ├── actions.ts
 .rw-r--r--   397 dalbert 28 Oct 13:01   -- │   │   │   └── page.tsx
-drwxr-xr-x     - dalbert 28 Nov 20:04   -M │   │   ├── benefit-displayer
-.rw-r--r--   13k dalbert 28 Nov 20:04   -M │   │   │   └── page.tsx
+drwxr-xr-x     - dalbert 12 Nov 08:34   -- │   │   ├── benefit-displayer
+.rw-r--r--  2.9k dalbert 12 Nov 08:34   -- │   │   │   ├── columns.tsx
+.rw-r--r--   21k dalbert 12 Nov 08:34   -- │   │   │   └── page.tsx
 .rw-r--r--  4.3k dalbert 29 Oct 23:04   -- │   │   ├── favicon.ico
 drwxr-xr-x     - dalbert  8 Oct 23:16   -- │   │   ├── fonts
 .rw-r--r--   68k dalbert  8 Oct 23:16   -- │   │   │   ├── GeistMonoVF.woff
 .rw-r--r--   66k dalbert  8 Oct 23:16   -- │   │   │   └── GeistVF.woff
 .rw-r--r--  2.2k dalbert 19 Nov 11:21   -M │   │   ├── globals.css
 .rw-r--r--  1.3k dalbert 30 Oct 18:25   -- │   │   ├── layout.tsx
-.rw-r--r--   15k dalbert 28 Nov 19:49   -M │   │   ├── page.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:38   -M │   │   ├── programs
-.rw-r--r--  3.2k dalbert 28 Nov 19:38   -M │   │   │   └── page.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:27   -N │   │   └── test
-.rw-r--r--   181 dalbert 28 Nov 19:27   -N │   │       └── page.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:44   -N │   ├── components
-drwxr-xr-x     - dalbert 28 Nov 19:56   -N │   │   ├── benefits
-.rw-r--r--  1.4k dalbert 28 Nov 19:43   -N │   │   │   ├── documentation-status.tsx
-.rw-r--r--  1.6k dalbert 28 Nov 19:56   -N │   │   │   ├── geographic-card.tsx
-.rw-r--r--   673 dalbert 28 Nov 19:43   -N │   │   │   └── progress-animation.tsx
+.rw-r--r--   15k dalbert 19 Nov 12:26   -M │   │   ├── page.tsx
+drwxr-xr-x     - dalbert 30 Oct 18:56   -- │   │   └── programs
+.rw-r--r--  1.9k dalbert 23 Oct 15:16   -- │   │       ├── columns.tsx
+.rw-r--r--   22k dalbert 30 Oct 18:56   -- │   │       └── page.tsx
+drwxr-xr-x     - dalbert 19 Nov 20:45   -N │   ├── components
 .rw-r--r--  4.0k dalbert  8 Oct 23:43   -- │   │   ├── data-table.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:49   -N │   │   ├── forms
+drwxr-xr-x     - dalbert 20 Nov 08:52   -N │   │   ├── forms
 .rw-r--r--   58k dalbert 28 Oct 22:57   -- │   │   │   ├── AddProgramsForm.tsx
 .rw-r--r--   27k dalbert  9 Oct 09:23   -- │   │   │   ├── BenefitsQuery.tsx
-.rw-r--r--   13k dalbert 28 Nov 19:49   -N │   │   │   ├── BenefitsQueryMigrate.tsx
-drwxr-xr-x     - dalbert 28 Nov 12:55   -N │   │   │   └── steps
+.rw-r--r--     0 dalbert 20 Nov 08:52   -N │   │   │   └── BenefitsQueryMigrate.tsx
 .rw-r--r--  2.4k dalbert 19 Nov 09:10   -N │   │   ├── Hero.tsx
 .rw-r--r--  5.5k dalbert 19 Nov 20:45   -N │   │   ├── HeroCalculator.tsx
 .rw-r--r--   689 dalbert  8 Oct 23:58   -- │   │   ├── mode-toggle.tsx
 .rw-r--r--  4.6k dalbert 19 Nov 09:09   -N │   │   ├── ParticlesBackground.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:38   -N │   │   ├── programs
-.rw-r--r--  7.4k dalbert 28 Nov 19:38   -N │   │   │   ├── program-table.tsx
-.rw-r--r--   741 dalbert 28 Nov 19:38   -N │   │   │   └── search-bar.tsx
 .rw-r--r--  3.4k dalbert 12 Nov 08:09   -- │   │   ├── SearchCommand.tsx
 .rw-r--r--  2.5k dalbert 19 Nov 12:24   -M │   │   ├── SocialProtectionNavigation.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:25   -N │   │   └── ui
+drwxr-xr-x     - dalbert 30 Oct 18:49   -- │   │   └── ui
 .rw-r--r--  2.0k dalbert  8 Oct 23:47   -- │   │       ├── accordion.tsx
 .rw-r--r--  1.6k dalbert  8 Oct 23:24   -- │   │       ├── alert.tsx
 .rw-r--r--  1.1k dalbert 30 Oct 18:49   -- │   │       ├── badge.tsx
@@ -87,33 +78,33 @@ drwxr-xr-x     - dalbert 28 Nov 19:25   -N │   │   └── ui
 .rw-r--r--   822 dalbert  8 Oct 23:24   -- │   │       ├── input.tsx
 .rw-r--r--   724 dalbert  8 Oct 23:37   -- │   │       ├── label.tsx
 .rw-r--r--  5.1k dalbert  8 Oct 23:52   -- │   │       ├── navigation-menu.tsx
-.rw-r--r--  1.5k dalbert 28 Nov 12:58   -N │   │       ├── progress.tsx
 .rw-r--r--  5.7k dalbert  8 Oct 23:24   -- │   │       ├── select.tsx
 .rw-r--r--   266 dalbert 30 Oct 18:49   -- │   │       ├── skeleton.tsx
-.rw-r--r--  1.2k dalbert 28 Nov 19:25   -N │   │       ├── stat-card.tsx
 .rw-r--r--  1.2k dalbert  8 Oct 23:24   -- │   │       ├── switch.tsx
 .rw-r--r--  2.9k dalbert  8 Oct 23:24   -- │   │       ├── table.tsx
 .rw-r--r--  1.9k dalbert  9 Oct 12:53   -- │   │       ├── tabs.tsx
 .rw-r--r--   732 dalbert  9 Oct 11:37   -- │   │       ├── textarea.tsx
 .rw-r--r--  1.2k dalbert 29 Oct 22:51   -- │   │       └── tooltip.tsx
-drwxr-xr-x     - dalbert 28 Nov 19:31   -N │   └── lib
-.rw-r--r--   21k dalbert 28 Nov 19:31   -M │       ├── actions.ts
+drwxr-xr-x     - dalbert 27 Nov 21:26   -N │   └── lib
+.rw-r--r--   12k dalbert 27 Nov 21:26   -M │       ├── actions.ts
 .rw-r--r--   139 dalbert 17 Nov 20:27   -- │       ├── db.ts
-.rw-r--r--  3.2k dalbert 28 Nov 19:26   -M │       ├── formatter.ts
+.rw-r--r--  5.8k dalbert 12 Nov 08:15   -- │       ├── eligibilityCalculator.ts
+.rw-r--r--   393 dalbert  8 Oct 23:38   -- │       ├── formatter.ts
 .rw-r--r--  2.9k dalbert 11 Nov 21:17   -- │       ├── presets.ts
-.rw-r--r--  7.8k dalbert 28 Nov 15:46   -M │       ├── schema.ts
+.rw-r--r--  5.2k dalbert 20 Nov 11:34   -M │       ├── schema.ts
 .rw-r--r--  4.5k dalbert 30 Oct 18:24   -- │       ├── static-data.ts
-drwxr-xr-x     - dalbert 28 Nov 19:10   -N │       ├── types
+drwxr-xr-x     - dalbert 27 Nov 21:26   -N │       ├── types
 .rw-r--r--   945 dalbert 27 Nov 20:54   -N │       │   ├── eligibility.ts
-.rw-r--r--  5.6k dalbert 28 Nov 09:03   -N │       │   ├── forms.ts
-.rw-r--r--  3.5k dalbert 28 Nov 19:10   -N │       │   ├── programs.ts
+.rw-r--r--  5.6k dalbert 27 Nov 21:26   -N │       │   ├── forms.ts
+.rw-r--r--  3.2k dalbert 27 Nov 20:54   -N │       │   ├── programs.ts
 .rw-r--r--   438 dalbert 27 Nov 20:54   -N │       │   └── results.ts
-drwxr-xr-x     - dalbert 28 Nov 19:49   -N │       ├── utils
-.rw-r--r--  6.6k dalbert 27 Nov 21:37   -N │       │   ├── calculations.ts
-.rw-r--r--  4.4k dalbert 28 Nov 19:49   -N │       │   ├── transformers.ts
+.rw-r--r--   895 dalbert 11 Nov 22:06   -- │       ├── types.ts
+drwxr-xr-x     - dalbert 27 Nov 21:26   -N │       ├── utils
+.rw-r--r--  6.2k dalbert 27 Nov 21:26   -N │       │   ├── calculations.ts
+.rw-r--r--  4.4k dalbert 27 Nov 21:26   -N │       │   ├── transformers.ts
 .rw-r--r--  2.9k dalbert 27 Nov 21:26   -N │       │   └── validators.ts
 .rw-r--r--   166 dalbert  8 Oct 23:22   -- │       └── utils.ts
 .rw-r--r--  2.1k dalbert  8 Oct 23:47   -- ├── tailwind.config.ts
-.rw-r--r--     0 dalbert 28 Nov 20:12   -M ├── tree.txt
+.rw-r--r--   23k dalbert 11 Nov 19:31   -- ├── tree.txt
 .rw-r--r--   670 dalbert 23 Oct 16:16   -- ├── tsconfig.json
 .rw-r--r--   353 dalbert 20 Nov 15:35   -M └── wrangler.toml

@@ -1,344 +1,224 @@
-// app/benefit-displayer/page.tsx
-'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DataTable from '@/components/data-table';
-import { createColumns, programToTableData } from "./columns";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import { getEligiblePrograms, calculateBenefitAmount } from '@/lib/actions';
-import { ProgramSelect, type EligibilityParams, GENDER_VALUES, TYPE_OF_DEPENDENTS_VALUES, EMPLOYMENT_STATUS_VALUES, DISABILITY_STATUS_VALUES, CHRONIC_ILLNESS_VALUES, COUNTRY_VALUES } from '@/lib/schema';
+// app/benefits-displayer/page.tsx
+import { redirect } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import { ProgressAnimation } from "@/components/benefits/progress-animation";
+import { DocumentationStatus } from "@/components/benefits/documentation-status";
+import { formatCurrency } from "@/lib/formatter";
+import { getEligiblePrograms, calculateBenefitsGap } from '@/lib/actions';
+import { FormSubmissionData } from '@/lib/types/forms';
 
-type CountryCode = "1" | "2" | "3" | "4" | "5";
-// Define the currency info type
-type CurrencyInfo = {
-        code: string;
-        symbol: string;
-        name: string;
+export const runtime = 'edge';
+
+// Define the expected shape of our search parameters
+
+// Helper function to unflatten the object
+function unflatten(data: { [key: string]: any }): { [key: string]: any } {
+        const result: { [key: string]: any } = {};
+        for (const flatKey in data) {
+                const keys = flatKey.split('.');
+                keys.reduce((acc, key, index) => {
+                        if (index === keys.length - 1) {
+                                acc[key] = data[flatKey];
+                        } else {
+                                acc[key] = acc[key] || {};
+                        }
+                        return acc[key];
+                }, result);
+        }
+        return result;
 }
 
-type CurrencyMapping = {
-        [key: string]: CurrencyInfo;
-}
+function normalizeValues(obj: any): any {
+        if (typeof obj !== 'object' || obj === null) return obj;
 
-const currencyInfo: CurrencyMapping = {
-        "1": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Dominica
-        "2": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Grenada
-        "3": { code: "JMD", symbol: "J$", name: "Jamaican Dollar" }, // Jamaica
-        "4": { code: "XCD", symbol: "EC$", name: "East Caribbean Dollar" }, // Saint Lucia
-        "5": { code: "TTD", symbol: "TT$", name: "Trinidad and Tobago Dollar" }, // Trinidad and Tobago
-};
-
-const containerVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                        duration: 0.5,
-                        staggerChildren: 0.1
+        for (const key in obj) {
+                if (typeof obj[key] === 'object') {
+                        normalizeValues(obj[key]);
+                } else {
+                        const value = obj[key];
+                        if (value === 'true') {
+                                obj[key] = true;
+                        } else if (value === 'false') {
+                                obj[key] = false;
+                        }
+                        // Do not convert numeric strings to numbers
+                        // Leave other strings as they are
                 }
         }
-};
+        return obj;
+}
 
-const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-};
+export default async function BenefitsDisplayerPage({ searchParams }: any) {
+        try {
+                // No await needed since searchParams is already an object
+                const dataParams = await searchParams;
+                const data = unflatten(dataParams);
+                console.log("flattened data:", data);
+                // Normalize string values to appropriate types
+                normalizeValues(data);
 
+                // Cast data to FormSubmissionData if necessary
+                const formData = data as FormSubmissionData;
 
-export default function BenefitsDisplayer() {
-        const searchParams = useSearchParams();
-        const [eligiblePrograms, setEligiblePrograms] = useState<ProgramSelect[]>([]);
-        const [currency, setCurrency] = useState<CurrencyInfo>(currencyInfo["1"]);
-        const [isLoading, setIsLoading] = useState(true);
-        const [activeTab, setActiveTab] = useState('summary');
-        const [error, setError] = useState<string | null>(null);
-
-        useEffect(() => {
-                const fetchEligiblePrograms = async () => {
-                        setIsLoading(true);
-                        setError(null);
-
-                        try {
-                                // Get all required search params
-                                const requiredParams = [
-                                        'age',
-                                        'gender',
-                                        'numberOfDependents',
-                                        'typeOfDependents',
-                                        'employmentStatus',
-                                        'disabilityStatus',
-                                        'chronicIllnessStatus',
-                                        'householdSize',
-                                        'countryOfOrigin',
-                                        'countryOfResidence'
-                                ] as const;
-
-                                // Initialize params with proper type checking
-                                const params: EligibilityParams = {
-                                        age: '',
-                                        gender: '4' as const,
-                                        numberOfDependents: '',
-                                        typeOfDependents: '1' as const,
-                                        employmentStatus: '5' as const,
-                                        disabilityStatus: '4' as const,
-                                        chronicIllnessStatus: '4' as const,
-                                        householdSize: '',
-                                        countryOfOrigin: '1' as const,
-                                        countryOfResidence: '1' as const,
-                                };
-
-                                // Validate and collect all required parameters with type checking
-                                for (const param of requiredParams) {
-                                        const value = searchParams.get(param);
-                                        if (!value) {
-                                                throw new Error(`Missing required parameter: ${param}`);
-                                        }
-
-                                        // Type guard for enum values
-                                        switch (param) {
-                                                case 'age':
-                                                case 'numberOfDependents':
-                                                case 'householdSize':
-                                                        params[param] = value; // These are string types in EligibilityParams
-                                                        break;
-                                                case 'gender':
-                                                        if (GENDER_VALUES.includes(value as any)) {
-                                                                params.gender = value as typeof GENDER_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid gender value: ${value}`);
-                                                        }
-                                                        break;
-                                                case 'typeOfDependents':
-                                                        if (TYPE_OF_DEPENDENTS_VALUES.includes(value as any)) {
-                                                                params.typeOfDependents = value as typeof TYPE_OF_DEPENDENTS_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid type of dependents value: ${value}`);
-                                                        }
-                                                        break;
-                                                case 'employmentStatus':
-                                                        if (EMPLOYMENT_STATUS_VALUES.includes(value as any)) {
-                                                                params.employmentStatus = value as typeof EMPLOYMENT_STATUS_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid employment status value: ${value}`);
-                                                        }
-                                                        break;
-                                                case 'disabilityStatus':
-                                                        if (DISABILITY_STATUS_VALUES.includes(value as any)) {
-                                                                params.disabilityStatus = value as typeof DISABILITY_STATUS_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid disability status value: ${value}`);
-                                                        }
-                                                        break;
-                                                case 'chronicIllnessStatus':
-                                                        if (CHRONIC_ILLNESS_VALUES.includes(value as any)) {
-                                                                params.chronicIllnessStatus = value as typeof CHRONIC_ILLNESS_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid chronic illness status value: ${value}`);
-                                                        }
-                                                        break;
-                                                case 'countryOfOrigin':
-                                                case 'countryOfResidence':
-                                                        if (COUNTRY_VALUES.includes(value as any)) {
-                                                                params[param] = value as typeof COUNTRY_VALUES[number];
-                                                        } else {
-                                                                throw new Error(`Invalid country value for ${param}: ${value}`);
-                                                        }
-                                                        break;
-                                        }
-                                }
-                                // Fetch eligible programs
-                                const programs = await getEligiblePrograms(params);
-
-                                // Calculate benefit amounts for each program
-                                const programsWithBenefits = await Promise.all(
-                                        programs.map(async (program) => {
-                                                const benefitAmount = await calculateBenefitAmount(program.id, params);
-                                                return {
-                                                        ...program,
-                                                        calculatedBenefit: benefitAmount
-                                                };
-                                        })
-                                );
-
-                                setEligiblePrograms(programsWithBenefits);
-
-                                // Set currency based on country of residence
-                                const countryCode = params.countryOfResidence;
-                                if (countryCode in currencyInfo) {
-                                        setCurrency(currencyInfo[countryCode]);
-                                }
-
-                        } catch (err) {
-                                console.error('Error fetching programs:', err);
-                                setError(err instanceof Error ? err.message : 'An error occurred');
-                        } finally {
-                                setIsLoading(false);
-                        }
-                };
-
-                fetchEligiblePrograms();
-        }, [searchParams]);
-        // Calculate totals
-        const totalCashTransfer = eligiblePrograms.reduce((sum, program) =>
-                sum + (program.cashTransferMonthlyAmount || 0), 0);
-
-        const totalInKindValue = eligiblePrograms.reduce((sum, program) =>
-                sum + (program.inKindDollarValueAmt || 0), 0);
-
-        const totalBenefits = totalCashTransfer + totalInKindValue;
-
-        const tableData = eligiblePrograms.map(programToTableData);
-        const countryCode = searchParams.get('countryOfResidence');
-        const validCountryCode = COUNTRY_VALUES.includes(countryCode as any)
-                ? (countryCode as CountryCode)
-                : "1" as const;
-
-        const columns = createColumns(validCountryCode);
-
-        // Chart data
-        const chartData = eligiblePrograms.map(program => ({
-                name: program.programTitle,
-                cashTransfer: program.cashTransferMonthlyAmount || 0,
-                inKindValue: program.inKindDollarValueAmt || 0,
-        }));
-
-        const handleExportCSV = () => {
-                const headers = ['Program Title', 'Organization', 'Description', 'Cash Transfer', 'In-Kind Value', 'Calculated Benefit'];
-                const csvData = tableData.map(row => [
-                        row.programTitle,
-                        row.responsibleOrganization,
-                        row.programDescription,
-                        row.cashTransferMonthly,
-                        row.inKindDollarValueAmt,
+                // Call the server actions to get eligible programs and benefits gap
+                const [eligiblePrograms, benefitsGap] = await Promise.all([
+                        getEligiblePrograms(formData),
+                        calculateBenefitsGap(formData)
                 ]);
 
-                const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'benefits-summary.csv';
-                a.click();
-        };
+                // If we don't have valid results data, redirect to home
+                if (!eligiblePrograms || !benefitsGap) {
+                        redirect('/');
+                }
 
-        if (error) {
                 return (
-                        <div className="container mx-auto py-10">
+                        <div className="container mx-auto p-6 space-y-6 max-w-4xl">
+                                {/* Summary Card */}
                                 <Card>
-                                        <CardContent className="flex items-center justify-center p-6">
-                                                <p className="text-red-500">{error}</p>
+                                        <CardHeader>
+                                                <CardTitle>Benefits Eligibility Results</CardTitle>
+                                                <CardDescription>
+                                                        Based on your information, you may be eligible for the following benefits
+                                                </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                <div className="grid gap-6 md:grid-cols-3">
+                                                        <div className="space-y-2">
+                                                                <p className="text-sm text-muted-foreground">Total Eligible Programs</p>
+                                                                <p className="text-2xl font-bold">{eligiblePrograms.length}</p>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                                <p className="text-sm text-muted-foreground">Total Benefits Value</p>
+                                                                <p className="text-2xl font-bold">{formatCurrency(benefitsGap.totalBenefits)}</p>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                                <p className="text-sm text-muted-foreground">MEB Coverage</p>
+                                                                <div className="space-y-2">
+                                                                        <ProgressAnimation value={benefitsGap.coverage} />
+                                                                        <p className="text-sm text-right">{Math.round(benefitsGap.coverage)}%</p>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </CardContent>
+                                </Card>
+
+                                {/* Benefits Gap Analysis */}
+                                <Card>
+                                        <CardHeader>
+                                                <CardTitle>Benefits Gap Analysis</CardTitle>
+                                                <CardDescription>Comparison with Minimum Expenditure Basket (MEB)</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                <div className="space-y-4">
+                                                        <div className="flex justify-between items-center">
+                                                                <span>Monthly MEB Amount</span>
+                                                                <span className="font-semibold">{formatCurrency(benefitsGap.mebAmount)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center">
+                                                                <span>Total Benefits</span>
+                                                                <span className="font-semibold">{formatCurrency(benefitsGap.totalBenefits)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-red-500">
+                                                                <span>Coverage Gap</span>
+                                                                <span className="font-semibold">{formatCurrency(benefitsGap.gap)}</span>
+                                                        </div>
+                                                </div>
+                                        </CardContent>
+                                </Card>
+
+                                {/* Eligible Programs Table */}
+                                <Card>
+                                        <CardHeader>
+                                                <CardTitle>Eligible Programs</CardTitle>
+                                                <CardDescription>Detailed breakdown of programs you may qualify for</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                <Table>
+                                                        <TableHeader>
+                                                                <TableRow>
+                                                                        <TableHead>Program</TableHead>
+                                                                        <TableHead>Eligibility Score</TableHead>
+                                                                        <TableHead>Monthly (Estimated) Benefit Amount</TableHead>
+                                                                        <TableHead>Frequency</TableHead>
+                                                                </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                                {eligiblePrograms.map((program) => (
+                                                                        <TableRow key={program.program.id}>
+                                                                                <TableCell className="font-medium">{program.program.title}</TableCell>
+                                                                                <TableCell>
+                                                                                        <Badge
+                                                                                                variant={
+                                                                                                        program.eligibilityScore > 80
+                                                                                                                ? "default"
+                                                                                                                : program.eligibilityScore > 60
+                                                                                                                        ? "secondary"
+                                                                                                                        : "outline"
+                                                                                                }
+                                                                                        >
+                                                                                                {Math.round(program.eligibilityScore)}%
+                                                                                        </Badge>
+                                                                                </TableCell>
+                                                                                <TableCell>{formatCurrency(program.calculatedBenefit)}</TableCell>
+                                                                                <TableCell>{program.program.benefitFrequency}</TableCell>
+                                                                        </TableRow>
+                                                                ))}
+                                                        </TableBody>
+                                                </Table>
+                                        </CardContent>
+                                </Card>
+
+                                {/* Documentation Status Card */}
+                                <Card>
+                                        <CardHeader>
+                                                <CardTitle>Required Documentation</CardTitle>
+                                                <CardDescription>Status of required documents for each program</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                <div className="space-y-4">
+                                                        {eligiblePrograms.map((program) => (
+                                                                <DocumentationStatus key={`docs-${program.program.id}`} program={program} />
+                                                        ))}
+                                                </div>
+                                        </CardContent>
+                                </Card>
+
+                                {/* Geographic Coverage */}
+                                <Card>
+                                        <CardHeader>
+                                                <CardTitle>Geographic Coverage</CardTitle>
+                                                <CardDescription>Coverage details for your location</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                                {eligiblePrograms.map((program) => (
+                                                        <div key={`geo-${program.program.id}`} className="mb-4 last:mb-0">
+                                                                <h3 className="font-semibold mb-2">{program.program.title}</h3>
+                                                                {program.geographicEligibility ? (
+                                                                        <Alert>
+                                                                                <CheckCircle2 className="h-4 w-4" />
+                                                                                <AlertTitle>Coverage Confirmed</AlertTitle>
+                                                                                <AlertDescription>This program is available in your area</AlertDescription>
+                                                                        </Alert>
+                                                                ) : (
+                                                                        <Alert variant="destructive">
+                                                                                <AlertCircle className="h-4 w-4" />
+                                                                                <AlertTitle>Coverage Unavailable</AlertTitle>
+                                                                                <AlertDescription>This program is not available in your area</AlertDescription>
+                                                                        </Alert>
+                                                                )}
+                                                        </div>
+                                                ))}
                                         </CardContent>
                                 </Card>
                         </div>
                 );
+        } catch (error) {
+                console.error('Error in BenefitsDisplayerPage:', error);
+                redirect('/');
         }
-
-
-        return (
-                <AnimatePresence>
-                        <motion.main
-                                className="container mx-auto py-10 space-y-10"
-                                variants={containerVariants}
-                                initial="hidden"
-                                animate="visible"
-                        >
-                                <motion.div variants={itemVariants}>
-                                        <h1 className="text-3xl font-bold text-center">Benefits Summary</h1>
-                                        <p className="text-center text-muted-foreground">
-                                                All amounts are in {currency.name} ({currency.code})
-                                        </p>
-                                </motion.div>
-
-                                <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-                                        <TabsList className="grid w-full grid-cols-3">
-                                                <TabsTrigger value="summary">Summary</TabsTrigger>
-                                                <TabsTrigger value="details">Program Details</TabsTrigger>
-                                                <TabsTrigger value="visualization">Visualization</TabsTrigger>
-                                        </TabsList>
-
-                                        <TabsContent value="summary">
-                                                <motion.div
-                                                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                                                        variants={containerVariants}
-                                                >
-                                                        <motion.div variants={itemVariants}>
-                                                                <Card>
-                                                                        <CardHeader>
-                                                                                <CardTitle>Total Cash Transfer</CardTitle>
-                                                                        </CardHeader>
-                                                                        <CardContent>
-                                                                                <p className="text-3xl font-bold">
-                                                                                        {currency.symbol}{totalCashTransfer.toFixed(2)}
-                                                                                </p>
-                                                                        </CardContent>
-                                                                </Card>
-                                                        </motion.div>
-
-                                                        <Card>
-                                                                <CardHeader>
-                                                                        <CardTitle>Total Benefits</CardTitle>
-                                                                </CardHeader>
-                                                                <CardContent>
-                                                                        <p className="text-3xl font-bold">{currency.symbol}{totalBenefits.toFixed(2)}</p>
-                                                                </CardContent>
-                                                        </Card>
-                                                </motion.div>
-                                        </TabsContent>
-
-                                        <TabsContent value="details">
-                                                <Card>
-                                                        <CardHeader className="flex flex-row items-center justify-between">
-                                                                <CardTitle>Eligible Programs</CardTitle>
-                                                                <Button onClick={handleExportCSV} variant="outline">
-                                                                        <Download className="mr-2 h-4 w-4" />
-                                                                        Export CSV
-                                                                </Button>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                                {isLoading ? (
-                                                                        <div className="flex items-center justify-center h-40">
-                                                                                <motion.div
-                                                                                        animate={{ rotate: 360 }}
-                                                                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                                                        className="w-6 h-6 border-2 border-primary rounded-full border-t-transparent"
-                                                                                />
-                                                                        </div>
-                                                                ) : (
-                                                                        <DataTable columns={columns} data={tableData} />
-                                                                )}
-                                                        </CardContent>
-                                                </Card>
-                                        </TabsContent>
-
-                                        <TabsContent value="visualization">
-                                                <Card>
-                                                        <CardHeader>
-                                                                <CardTitle>Benefits Distribution</CardTitle>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                                <div className="w-full overflow-x-auto">
-                                                                        <LineChart width={800} height={400} data={chartData}>
-                                                                                <CartesianGrid strokeDasharray="3 3" />
-                                                                                <XAxis dataKey="name" />
-                                                                                <YAxis />
-                                                                                <Tooltip />
-                                                                                <Legend />
-                                                                                <Line type="monotone" dataKey="cashTransfer" stroke="#8884d8" name="Cash Transfer" />
-                                                                                <Line type="monotone" dataKey="inKindValue" stroke="#82ca9d" name="In-Kind Value" />
-                                                                        </LineChart>
-                                                                </div>
-                                                        </CardContent>
-                                                </Card>
-                                        </TabsContent>
-                                </Tabs>
-                        </motion.main>
-                </AnimatePresence>
-        );
 }

@@ -4,7 +4,10 @@
 import type { EligibilityRule, GeographicCoverage, ProgramWithRelations } from '@/lib/types/programs';
 import type { EligibilityParams } from '@/lib/types/eligibility';
 
-// Define which rule types are numeric
+/**
+ * A set of rule types that require numeric comparisons.
+ * Any rule type not in this set will be treated as a string comparison.
+ */
 const numericRuleTypes: Set<string> = new Set([
         'age',
         'income',
@@ -16,7 +19,13 @@ const numericRuleTypes: Set<string> = new Set([
         // Add any other numeric rule types here
 ]);
 
-// Main function to calculate eligibility score for a program
+/**
+ * Calculates the eligibility score for a given program based on the provided parameters.
+ * 
+ * @param program - The program for which eligibility is being calculated.
+ * @param params - The applicant's eligibility parameters.
+ * @returns A score between 0 and 100 indicating eligibility.
+ */
 export function calculateEligibilityScore(
         program: ProgramWithRelations,
         params: EligibilityParams
@@ -26,42 +35,48 @@ export function calculateEligibilityScore(
                 return calculateCategoryBasedEligibility(program, params);
         }
 
-        // Group rules by logicGroup for AND/OR evaluation
-        const ruleGroups = program.eligibilityRules.reduce((groups, rule) => {
-                const group = rule.logicGroup || 0;
+        // Group rules by logic_group for AND/OR evaluation
+        const ruleGroups = groupRulesByLogicGroup(program.eligibilityRules);
+
+        // Evaluate each group - rules within a group use AND logic
+        const groupResults = Object.values(ruleGroups).map(rules => {
+                return rules.every(rule => evaluateRule(rule, params));
+        });
+
+        // If any group passes (OR logic between groups), calculate score
+        const isEligible = groupResults.some(result => result === true);
+        if (!isEligible) return 0;
+
+        // Calculate score based on the percentage of matching rules
+        const totalRules = program.eligibilityRules.length;
+        const matchingRules = program.eligibilityRules.filter(rule => evaluateRule(rule, params)).length;
+
+        // Return eligibility as a percentage
+        return (matchingRules / totalRules) * 100;
+}
+
+/**
+ * Groups eligibility rules by their logic_group.
+ * 
+ * @param rules - The list of eligibility rules.
+ * @returns An object where each key is a logic_group number and the value is an array of rules.
+ */
+function groupRulesByLogicGroup(rules: EligibilityRule[]): Record<number, EligibilityRule[]> {
+        return rules.reduce((groups, rule) => {
+                const group = rule.logic_group || 0; // Default to group 0 if not specified
                 if (!groups[group]) groups[group] = [];
                 groups[group].push(rule);
                 return groups;
         }, {} as Record<number, EligibilityRule[]>);
-
-        // Evaluate each group - rules within a group use AND logic
-        const groupResults = Object.values(ruleGroups).map(rules => {
-                const groupMatches = rules.map(rule => {
-                        const result = evaluateRule(rule, params);
-                        console.log(`Rule evaluation: ${rule.ruleType}`, {
-                                result,
-                                ruleDetails: rule,
-                                paramValue: getParamValue(rule.ruleType, params)
-                        });
-                        return result;
-                });
-                return groupMatches.every(Boolean);
-        });
-
-        // If any group passes (OR logic between groups), calculate score
-        const isEligible = groupResults.some(Boolean);
-        if (!isEligible) return 0;
-
-        // Calculate score based on percentage of matching rules
-        const totalRules = program.eligibilityRules.length;
-        const matchingRules = program.eligibilityRules.filter(rule =>
-                evaluateRule(rule, params)
-        ).length;
-
-        return (matchingRules / totalRules) * 100;
 }
 
-// New function to handle category-based eligibility
+/**
+ * Calculates eligibility based on program category when no explicit eligibility rules are defined.
+ * 
+ * @param program - The program for which eligibility is being calculated.
+ * @param params - The applicant's eligibility parameters.
+ * @returns A score of 100 if eligible, otherwise 0.
+ */
 function calculateCategoryBasedEligibility(
         program: ProgramWithRelations,
         params: EligibilityParams
@@ -69,8 +84,9 @@ function calculateCategoryBasedEligibility(
         const age = parseInt(params.age);
         const isUnemployed = params.employmentStatus === '1';
         const hasDisability = params.disabilityStatus !== '1';
-        const hasLowIncome = params.monthlyIncome ?
-                parseFloat(params.monthlyIncome) < 1000 : true;
+        const hasLowIncome = params.monthlyIncome
+                ? parseFloat(params.monthlyIncome) < 1000
+                : true;
 
         switch (program.category) {
                 case 'disability':
@@ -92,15 +108,20 @@ function calculateCategoryBasedEligibility(
         }
 }
 
-// Enhanced parameter value retrieval without using 'value_type'
+/**
+ * Retrieves the parameter value from EligibilityParams based on the rule type.
+ * 
+ * @param ruleType - The type of the rule.
+ * @param params - The applicant's eligibility parameters.
+ * @returns The corresponding parameter value as a string, or undefined if not found.
+ */
 function getParamValue(ruleType: string, params: EligibilityParams): string | undefined {
         switch (ruleType) {
                 case 'country_of_residence':
-                        return params.countryOfResidence; // Returns 'TT' or 'DM'
+                        return params.countryOfResidence; // Expected: 'TT' or 'LC'
 
                 case 'income':
                 case 'monthly_income':
-                        // Assuming 'income' and 'monthly_income' both refer to monthly household income
                         return params.monthlyIncome;
 
                 case 'age':
@@ -119,30 +140,47 @@ function getParamValue(ruleType: string, params: EligibilityParams): string | un
                         return params.affectedByEmergency;
 
                 default:
-                        // Handle documentation status fields and other direct mappings
+                        // Handle boolean fields prefixed with 'has'
                         if (ruleType.startsWith('has') && ruleType in params) {
                                 // Convert boolean to string ('true' or 'false')
-                                return params[ruleType as keyof EligibilityParams] ? 'true' : 'false';
+                                const paramKey = ruleType as keyof EligibilityParams;
+                                return params[paramKey] ? 'true' : 'false';
                         }
 
-                        // Default to direct parameter lookup
-                        return params[ruleType as keyof EligibilityParams]?.toString();
+                        // Handle other direct mappings
+                        if (ruleType in params) {
+                                const paramKey = ruleType as keyof EligibilityParams;
+                                return params[paramKey]?.toString();
+                        }
+
+                        // If ruleType does not match any EligibilityParams field
+                        console.warn(`Unrecognized rule_type: ${ruleType}`);
+                        return undefined;
         }
 }
 
-// Enhanced rule evaluation without using 'value_type'
+/**
+ * Evaluates a single eligibility rule against the provided parameters.
+ * 
+ * @param rule - The eligibility rule to evaluate.
+ * @param params - The applicant's eligibility parameters.
+ * @returns True if the rule is satisfied, otherwise false.
+ */
 export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): boolean {
-        const paramValue = getParamValue(rule.ruleType, params);
-        if (paramValue === undefined) return false;
+        const paramValue = getParamValue(rule.rule_type, params);
+        if (paramValue === undefined) {
+                console.warn(`No parameter value found for rule_type: ${rule.rule_type}`);
+                return false;
+        }
 
-        console.log(`Evaluating rule ${rule.ruleType}:`, {
+        console.log(`Evaluating rule ${rule.rule_type}:`, {
                 paramValue,
                 operator: rule.operator,
                 ruleValue: rule.value
         });
 
         try {
-                if (numericRuleTypes.has(rule.ruleType)) {
+                if (numericRuleTypes.has(rule.rule_type)) {
                         // Perform numeric comparison
                         return evaluateNumericRule(rule.operator as '>' | '<' | '>=' | '<=', paramValue, rule.value);
                 } else {
@@ -150,12 +188,19 @@ export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): 
                         return evaluateStringRule(rule.operator as '===', paramValue, rule.value);
                 }
         } catch (error) {
-                console.error(`Error evaluating rule: ${rule.ruleType}`, error);
+                console.error(`Error evaluating rule: ${rule.rule_type}`, error);
                 return false;
         }
 }
 
-// Helper function for numeric-based rules
+/**
+ * Helper function to perform numeric comparisons.
+ * 
+ * @param operator - The comparison operator ('>', '<', '>=', '<=').
+ * @param paramValue - The applicant's parameter value as a string.
+ * @param ruleValue - The rule's threshold value as a string.
+ * @returns True if the comparison holds, otherwise false.
+ */
 function evaluateNumericRule(
         operator: '>' | '<' | '>=' | '<=',
         paramValue: string,
@@ -164,7 +209,10 @@ function evaluateNumericRule(
         const numericParam = parseFloat(paramValue);
         const numericRule = parseFloat(ruleValue);
 
-        if (isNaN(numericParam) || isNaN(numericRule)) return false;
+        if (isNaN(numericParam) || isNaN(numericRule)) {
+                console.warn(`Invalid numeric values: paramValue=${paramValue}, ruleValue=${ruleValue}`);
+                return false;
+        }
 
         switch (operator) {
                 case '>': return numericParam > numericRule;
@@ -177,7 +225,14 @@ function evaluateNumericRule(
         }
 }
 
-// Helper function for string-based rules
+/**
+ * Helper function to perform string comparisons.
+ * 
+ * @param operator - The comparison operator ('===').
+ * @param paramValue - The applicant's parameter value as a string.
+ * @param ruleValue - The rule's threshold value as a string.
+ * @returns True if the comparison holds, otherwise false.
+ */
 function evaluateStringRule(
         operator: '===',
         paramValue: string,
@@ -192,7 +247,12 @@ function evaluateStringRule(
         }
 }
 
-// Enhanced vulnerability score calculation
+/**
+ * Calculates the vulnerability score based on various criteria.
+ * 
+ * @param params - The applicant's eligibility parameters.
+ * @returns The number of vulnerability criteria met.
+ */
 function calculateVulnerabilityScore(params: EligibilityParams): number {
         const age = parseInt(params.age);
         const vulnerabilityCriteria = [
@@ -200,15 +260,24 @@ function calculateVulnerabilityScore(params: EligibilityParams): number {
                 params.disabilityStatus !== '1',
                 params.chronicIllnessStatus !== '1',
                 params.employmentStatus === '1',
-                params.householdIncomePerPerson ?
-                        parseFloat(params.householdIncomePerPerson) < 1000 : true,
-                params.numberOfDependents ? parseInt(params.numberOfDependents) > 0 : false
+                params.householdIncomePerPerson
+                        ? parseFloat(params.householdIncomePerPerson) < 1000
+                        : true,
+                params.numberOfDependents
+                        ? parseInt(params.numberOfDependents) > 0
+                        : false
         ];
 
         return vulnerabilityCriteria.filter(Boolean).length;
 }
 
-// Enhanced geographic eligibility check
+/**
+ * Checks if the applicant's region is covered by the program.
+ * 
+ * @param coverage - The geographic coverage details of the program.
+ * @param region - The region of the applicant.
+ * @returns True if the region is covered, otherwise false.
+ */
 export function checkGeographicEligibility(
         coverage: GeographicCoverage[],
         region: string
@@ -219,14 +288,16 @@ export function checkGeographicEligibility(
         // Check for national coverage first
         const nationalCoverage = coverage.find(c =>
                 c.region.toLowerCase() === 'national' &&
-                c.coverageType === 'full'
+                c.coverage_type === 'full'
         );
         if (nationalCoverage) return true;
 
         // Check for specific regional coverage
-        const regionCoverage = coverage.find(c => c.region.toLowerCase() === region.toLowerCase());
+        const regionCoverage = coverage.find(c =>
+                c.region.toLowerCase() === region.toLowerCase()
+        );
         if (!regionCoverage) return false;
 
-        return regionCoverage.coverageType === 'full' ||
-                (regionCoverage.coverageType === 'partial' && !regionCoverage.specialRequirements);
+        return regionCoverage.coverage_type === 'full' ||
+                (regionCoverage.coverage_type === 'partial' && !regionCoverage.special_requirements);
 }

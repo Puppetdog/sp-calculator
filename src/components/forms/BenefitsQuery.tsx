@@ -18,6 +18,7 @@ import HealthStatusStep from './steps/HealthStatusStep';
 import EmploymentInformationStep from './steps/EmploymentInformationStep';
 import DocumentationStep from './steps/DocumentationStep';
 import PreferencesStep from './steps/PreferencesStep';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface FormState {
         isSubmitting: boolean;
@@ -181,10 +182,20 @@ export function BenefitsQueryForm() {
                                                 )}
 
                                                 {/* Current step component */}
-                                                {(() => {
-                                                        const StepComponent = steps[currentStep].component;
-                                                        return <StepComponent />;
-                                                })()}
+                                                <AnimatePresence mode="wait">
+                                                        <motion.div
+                                                                key={steps[currentStep].id}
+                                                                initial={{ opacity: 0, x: 0 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                exit={{ opacity: 0, x: 0 }}
+                                                                transition={{ duration: 0.3 }}
+                                                        >
+                                                                {(() => {
+                                                                        const StepComponent = steps[currentStep].component;
+                                                                        return <StepComponent />;
+                                                                })()}
+                                                        </motion.div>
+                                                </AnimatePresence>
 
                                                 {/* Navigation buttons */}
                                                 <div className="flex justify-between mt-6">

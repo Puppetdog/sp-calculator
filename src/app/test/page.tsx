@@ -2,7 +2,7 @@ import { calculateBenefitsGap, getEligiblePrograms } from "@/lib/actions"; const
         basic: {
                 age: "65",
                 gender: "1",
-                countryOfResidence: "TT",
+                countryOfResidence: "DM",
         },
         household: {
                 householdSize: "5",

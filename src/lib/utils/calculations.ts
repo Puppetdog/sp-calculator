@@ -1,7 +1,20 @@
+
 // lib/utils/calculations.ts
 
 import type { EligibilityRule, GeographicCoverage, ProgramWithRelations } from '@/lib/types/programs';
 import type { EligibilityParams } from '@/lib/types/eligibility';
+
+// Define which rule types are numeric
+const numericRuleTypes: Set<string> = new Set([
+        'age',
+        'income',
+        'monthly_income',
+        'contributions',
+        'contributions_weeks',
+        'additional_contributions_weeks',
+        'pension_cap',
+        // Add any other numeric rule types here
+]);
 
 // Main function to calculate eligibility score for a program
 export function calculateEligibilityScore(
@@ -13,7 +26,7 @@ export function calculateEligibilityScore(
                 return calculateCategoryBasedEligibility(program, params);
         }
 
-        // Group rules by logic group for AND/OR evaluation
+        // Group rules by logicGroup for AND/OR evaluation
         const ruleGroups = program.eligibilityRules.reduce((groups, rule) => {
                 const group = rule.logicGroup || 0;
                 if (!groups[group]) groups[group] = [];
@@ -28,7 +41,7 @@ export function calculateEligibilityScore(
                         console.log(`Rule evaluation: ${rule.ruleType}`, {
                                 result,
                                 ruleDetails: rule,
-                                params: getParamValue(rule.ruleType, params)
+                                paramValue: getParamValue(rule.ruleType, params)
                         });
                         return result;
                 });
@@ -79,48 +92,37 @@ function calculateCategoryBasedEligibility(
         }
 }
 
-// Enhanced parameter value retrieval
+// Enhanced parameter value retrieval without using 'value_type'
 function getParamValue(ruleType: string, params: EligibilityParams): string | undefined {
-        // Handle special case parameters
         switch (ruleType) {
-                case 'residency':
-                        return params.hasProofOfResidence ? 'citizen_or_resident' : 'non_resident';
+                case 'country_of_residence':
+                        return params.countryOfResidence; // Returns 'TT' or 'DM'
 
                 case 'income':
-                        // Convert monthly income to daily for poverty line comparisons
-                        if (params.monthlyIncome) {
-                                const monthlyIncome = parseFloat(params.monthlyIncome);
-                                return (monthlyIncome / 30).toString();
-                        }
-                        return '0';
+                case 'monthly_income':
+                        // Assuming 'income' and 'monthly_income' both refer to monthly household income
+                        return params.monthlyIncome;
 
-                case 'age_range':
+                case 'age':
                         return params.age;
 
-                case 'vulnerability_status':
-                        return calculateVulnerabilityScore(params) >= 2 ? 'vulnerable' : 'not_vulnerable';
+                case 'contributions':
+                        return params.contributionsWeeks;
 
-                case 'employment_status':
-                        return params.employmentStatus;
+                case 'is_enrolled_in_school':
+                        return params.isEnrolledInSchool;
 
-                case 'disability_status':
-                        return params.disabilityStatus;
+                case 'background_check_status':
+                        return params.backgroundCheckStatus;
 
-                case 'household_size':
-                        return params.householdSize;
-
-                case 'dependency_ratio':
-                        if (params.numberOfDependents && params.householdSize) {
-                                const dependents = parseInt(params.numberOfDependents);
-                                const household = parseInt(params.householdSize);
-                                return household > 0 ? (dependents / household).toString() : '0';
-                        }
-                        return '0';
+                case 'affected_by_emergency':
+                        return params.affectedByEmergency;
 
                 default:
-                        // Handle documentation status fields
+                        // Handle documentation status fields and other direct mappings
                         if (ruleType.startsWith('has') && ruleType in params) {
-                                return params[ruleType as keyof EligibilityParams]?.toString();
+                                // Convert boolean to string ('true' or 'false')
+                                return params[ruleType as keyof EligibilityParams] ? 'true' : 'false';
                         }
 
                         // Default to direct parameter lookup
@@ -128,7 +130,7 @@ function getParamValue(ruleType: string, params: EligibilityParams): string | un
         }
 }
 
-// Enhanced rule evaluation
+// Enhanced rule evaluation without using 'value_type'
 export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): boolean {
         const paramValue = getParamValue(rule.ruleType, params);
         if (paramValue === undefined) return false;
@@ -140,28 +142,12 @@ export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): 
         });
 
         try {
-                switch (rule.operator) {
-                        case '>':
-                        case '<':
-                        case '>=':
-                        case '<=':
-                                return evaluateNumericRule(rule.operator, paramValue, rule.value);
-
-                        case '===':
-                                return paramValue.toLowerCase() === rule.value.toLowerCase();
-
-                        case 'IN':
-                                return evaluateInRule(paramValue, rule.value);
-
-                        case 'BETWEEN':
-                                return evaluateBetweenRule(paramValue, rule.value);
-
-                        case 'ANY':
-                                return evaluateAnyRule(paramValue, rule.value);
-
-                        default:
-                                console.warn(`Unknown operator: ${rule.operator}`);
-                                return false;
+                if (numericRuleTypes.has(rule.ruleType)) {
+                        // Perform numeric comparison
+                        return evaluateNumericRule(rule.operator as '>' | '<' | '>=' | '<=', paramValue, rule.value);
+                } else {
+                        // Perform string comparison
+                        return evaluateStringRule(rule.operator as '===', paramValue, rule.value);
                 }
         } catch (error) {
                 console.error(`Error evaluating rule: ${rule.ruleType}`, error);
@@ -169,7 +155,7 @@ export function evaluateRule(rule: EligibilityRule, params: EligibilityParams): 
         }
 }
 
-// Helper functions for rule evaluation
+// Helper function for numeric-based rules
 function evaluateNumericRule(
         operator: '>' | '<' | '>=' | '<=',
         paramValue: string,
@@ -185,26 +171,25 @@ function evaluateNumericRule(
                 case '<': return numericParam < numericRule;
                 case '>=': return numericParam >= numericRule;
                 case '<=': return numericParam <= numericRule;
+                default:
+                        console.warn(`Unsupported numeric operator: ${operator}`);
+                        return false;
         }
 }
 
-function evaluateInRule(paramValue: string, ruleValue: string): boolean {
-        const validValues = ruleValue.split(',').map(v => v.trim().toLowerCase());
-        return validValues.includes(paramValue.toLowerCase());
-}
-
-function evaluateBetweenRule(paramValue: string, ruleValue: string): boolean {
-        const [min, max] = ruleValue.split(',').map(v => parseFloat(v.trim()));
-        const value = parseFloat(paramValue);
-
-        if (isNaN(value) || isNaN(min) || isNaN(max)) return false;
-        return value >= min && value <= max;
-}
-
-function evaluateAnyRule(paramValue: string, ruleValue: string): boolean {
-        const paramValues = paramValue.split(',').map(v => v.trim().toLowerCase());
-        const validValues = ruleValue.split(',').map(v => v.trim().toLowerCase());
-        return paramValues.some(value => validValues.includes(value));
+// Helper function for string-based rules
+function evaluateStringRule(
+        operator: '===',
+        paramValue: string,
+        ruleValue: string
+): boolean {
+        switch (operator) {
+                case '===':
+                        return paramValue.toLowerCase() === ruleValue.toLowerCase();
+                default:
+                        console.warn(`Unsupported string operator: ${operator}`);
+                        return false;
+        }
 }
 
 // Enhanced vulnerability score calculation

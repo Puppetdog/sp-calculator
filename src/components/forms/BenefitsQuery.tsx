@@ -44,7 +44,7 @@ export function BenefitsQueryForm() {
                         basic: {
                                 age: '30',
                                 gender: '1',
-                                countryOfResidence: '1',
+                                countryOfResidence: 'DM',
                                 countryOfOrigin: '',
                         },
                         household: {

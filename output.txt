@@ -1,0 +1,178 @@
+
+ ⛅️ wrangler 3.83.0 (update available 3.91.0)
+---------------------------------------------
+
+🌀 Executing on preview database social-protection-calculator-db (b8537e66-55e0-4a56-a831-479a30eda038):
+🌀 To execute on your local development database, remove the --remote flag from your wrangler command.
+🚣 Executed 1 command in 0.4013ms
+[
+  {
+    "results": [
+      {
+        "id": 1,
+        "program_id": 4,
+        "condition_type": "household_size",
+        "operator": "===",
+        "threshold_value": "1",
+        "benefit_modifier": 1300,
+        "modifier_type": "set",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 2,
+        "program_id": 4,
+        "condition_type": "household_size",
+        "operator": "===",
+        "threshold_value": "2",
+        "benefit_modifier": 1550,
+        "modifier_type": "set",
+        "priority": 2,
+        "active": 1
+      },
+      {
+        "id": 3,
+        "program_id": 4,
+        "condition_type": "household_size",
+        "operator": "===",
+        "threshold_value": "3",
+        "benefit_modifier": 1750,
+        "modifier_type": "set",
+        "priority": 3,
+        "active": 1
+      },
+      {
+        "id": 4,
+        "program_id": 4,
+        "condition_type": "household_size",
+        "operator": ">=",
+        "threshold_value": "4",
+        "benefit_modifier": 1900,
+        "modifier_type": "set",
+        "priority": 4,
+        "active": 1
+      },
+      {
+        "id": 5,
+        "program_id": 10,
+        "condition_type": "recipient_type",
+        "operator": "===",
+        "threshold_value": "adult",
+        "benefit_modifier": 150,
+        "modifier_type": "set",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 6,
+        "program_id": 10,
+        "condition_type": "recipient_type",
+        "operator": "===",
+        "threshold_value": "child",
+        "benefit_modifier": 127.5,
+        "modifier_type": "set",
+        "priority": 2,
+        "active": 1
+      },
+      {
+        "id": 7,
+        "program_id": 10,
+        "condition_type": "household_size",
+        "operator": ">=",
+        "threshold_value": "1",
+        "benefit_modifier": 375,
+        "modifier_type": "max",
+        "priority": 3,
+        "active": 1
+      },
+      {
+        "id": 8,
+        "program_id": 11,
+        "condition_type": "base_stipend",
+        "operator": "===",
+        "threshold_value": "monthly",
+        "benefit_modifier": 220,
+        "modifier_type": "set",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 10,
+        "program_id": 13,
+        "condition_type": "base_pension",
+        "operator": "===",
+        "threshold_value": "weekly_minimum",
+        "benefit_modifier": 76.81,
+        "modifier_type": "set",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 14,
+        "program_id": 12,
+        "condition_type": "grant_amount",
+        "operator": "===",
+        "threshold_value": "monthly",
+        "benefit_modifier": 300,
+        "modifier_type": "set",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 15,
+        "program_id": 13,
+        "condition_type": "contributions_weeks",
+        "operator": ">=",
+        "threshold_value": "500",
+        "benefit_modifier": 0.3,
+        "modifier_type": "multiply",
+        "priority": 1,
+        "active": 1
+      },
+      {
+        "id": 16,
+        "program_id": 13,
+        "condition_type": "additional_contributions_weeks",
+        "operator": ">",
+        "threshold_value": "500",
+        "benefit_modifier": 0.01,
+        "modifier_type": "add",
+        "priority": 2,
+        "active": 1
+      },
+      {
+        "id": 17,
+        "program_id": 13,
+        "condition_type": "pension_cap",
+        "operator": "<=",
+        "threshold_value": "0.60",
+        "benefit_modifier": 0.6,
+        "modifier_type": "cap",
+        "priority": 3,
+        "active": 1
+      },
+      {
+        "id": 18,
+        "program_id": 11,
+        "condition_type": "clothing_allowance",
+        "operator": "===",
+        "threshold_value": "annual",
+        "benefit_modifier": 500,
+        "modifier_type": "set",
+        "priority": 2,
+        "active": 1
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "duration": 0.4013,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 86016,
+      "rows_read": 14,
+      "rows_written": 0
+    }
+  }
+]

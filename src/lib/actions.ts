@@ -107,14 +107,11 @@ export const getEligiblePrograms = cache(async (formData: FormSubmissionData): P
 
 
                 });
-                console.log('Found programs:', programsWithRelations.length);
-                console.log(programsWithRelations)
 
                 const eligiblePrograms = await Promise.all(
                         programsWithRelations.map(async program => {
                                 const eligibilityScore = calculateEligibilityScore(program, params);
 
-                                console.log(`Program ${program.title} score:`, eligibilityScore);
                                 if (eligibilityScore === 0) {
                                         return null;
                                 }

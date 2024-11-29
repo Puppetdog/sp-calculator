@@ -16,6 +16,7 @@ export interface EligibilityParams {
         employmentStatus: string;
         employmentSector?: string;
         socialSecurityNumber?: string;
+        contributionsWeeks?: string; // Added for Old Age Pension
 
         // Health
         disabilityStatus: string;
@@ -32,4 +33,11 @@ export interface EligibilityParams {
         hasValidID?: boolean;
         hasProofOfResidence?: boolean;
         hasIncomeDocuments?: boolean;
+        backgroundCheckStatus?: string; // Added for Foster Care Programme
+
+        // Education
+        isEnrolledInSchool?: string; // Added for School Feeding Program
+
+        // Emergency Status
+        affectedByEmergency?: string; // Added for Emergency/Fire Grant
 }

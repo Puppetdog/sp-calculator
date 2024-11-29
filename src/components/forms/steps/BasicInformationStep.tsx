@@ -75,9 +75,9 @@ export default function BasicInformationStep() {
                                                         </FormControl>
                                                         <SelectContent>
                                                                 <SelectItem value="DM">Dominica</SelectItem>
-                                                                <SelectItem value="2">Grenada</SelectItem>
-                                                                <SelectItem value="3">Jamaica</SelectItem>
-                                                                <SelectItem value="4">Saint Lucia</SelectItem>
+                                                                <SelectItem value="GR">Grenada</SelectItem>
+                                                                <SelectItem value="JA">Jamaica</SelectItem>
+                                                                <SelectItem value="LC">Saint Lucia</SelectItem>
                                                                 <SelectItem value="TT">Trinidad</SelectItem>
                                                         </SelectContent>
                                                 </Select>

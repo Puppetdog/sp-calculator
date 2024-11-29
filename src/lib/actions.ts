@@ -188,8 +188,21 @@ export async function calculateBenefitAmount(programId: number, params: Eligibil
 
                 let benefit = program.minimumBenefit || 0;
 
+                // Utility function to convert snake_case to camelCase
+                function snakeToCamel(s: string): string {
+                        return s.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                }
+
                 function evaluateBenefitRule(rule: ProgramWithBenefits['benefitRules'][number], params: EligibilityParams): boolean {
-                        const paramValue = params[rule.conditionType as keyof EligibilityParams];
+                        console.log('rule:', rule);
+                        console.log('parameters', params);
+
+                        // Convert snake_case to camelCase
+                        const camelKey = snakeToCamel(rule.conditionType) as keyof EligibilityParams;
+                        const paramValue = params[camelKey];
+
+                        console.log('paramValue:', paramValue);
+
                         if (typeof paramValue !== 'string') return false;
 
                         const threshold = parseFloat(rule.thresholdValue);
@@ -236,7 +249,6 @@ export async function calculateBenefitAmount(programId: number, params: Eligibil
                 throw new Error('Failed to calculate benefit amount');
         }
 }
-
 
 
 

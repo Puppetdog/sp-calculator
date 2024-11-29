@@ -74,7 +74,7 @@ export default function BasicInformationStep() {
                                                                 </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>
-                                                                <SelectItem value="1">Dominica</SelectItem>
+                                                                <SelectItem value="DM">Dominica</SelectItem>
                                                                 <SelectItem value="2">Grenada</SelectItem>
                                                                 <SelectItem value="3">Jamaica</SelectItem>
                                                                 <SelectItem value="4">Saint Lucia</SelectItem>

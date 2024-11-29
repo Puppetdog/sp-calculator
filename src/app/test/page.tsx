@@ -5,8 +5,8 @@ import { calculateBenefitsGap, getEligiblePrograms } from "@/lib/actions"; const
                 countryOfResidence: "TT",
         },
         household: {
-                householdSize: "1",
-                numberOfDependents: "0",
+                householdSize: "5",
+                numberOfDependents: "4",
                 monthlyIncome: "0" // No income
         },
         health: {
